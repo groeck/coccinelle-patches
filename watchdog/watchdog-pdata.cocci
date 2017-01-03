@@ -3,7 +3,7 @@ virtual patch
 @initialize:python@
 @@
 
-f = open('watchdog-pdata.log', 'a')
+f = open('coccinelle.log', 'a')
 
 @probe@
 identifier p, probefn;

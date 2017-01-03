@@ -3,7 +3,7 @@ virtual patch
 @initialize:python@
 @@
 
-f = open('watchdog-of_clk.log', 'w')
+f = open('coccinelle.log', 'a')
 
 @probe@
 identifier p, probefn;

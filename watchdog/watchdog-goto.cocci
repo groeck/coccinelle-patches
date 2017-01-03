@@ -3,25 +3,27 @@ virtual patch
 @initialize:python@
 @@
 
-f = open('watchdog-goto.log', 'a')
+f = open('coccinelle.log', 'a')
 
 @probe@
 identifier p, probefn;
 declarer name module_platform_driver_probe;
+position pos;
 @@
 (
-  module_platform_driver_probe(p, probefn);
+  module_platform_driver_probe(p, probefn@pos);
 |
   struct platform_driver p = {
-    .probe = probefn,
+    .probe = probefn@pos,
   };
 )
 
 @remove@
 identifier probe.p, removefn;
+position pos;
 @@
 
-  struct platform_driver p = {
+  struct platform_driver p@pos = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
@@ -89,12 +91,11 @@ initfn(...) {
 identifier initfn;
 identifier l1;
 expression e;
-position p;
 @@
 
 initfn(...) {
 <...
-- goto l1@p;
+- goto l1;
 + return e;
    ...
 - l1:
@@ -104,12 +105,11 @@ initfn(...) {
 @merge_return depends on probe@
 identifier initfn;
 expression ret, e;
-position p;
 @@
 
 initfn(...) {
 <...
-- ret = e@p;
+- ret = e;
 - return ret;
 + return e;
 ...> }
@@ -117,24 +117,22 @@ initfn(...) {
 @empty_if depends on probe@
 identifier initfn;
 expression e;
-position p;
 @@
 
 initfn(...) {
 <...
-- if (e@p)
+- if (e)
 -  {}
 ...> }
 
 @extra_return depends on probe@
 identifier initfn;
 expression e;
-position p;
 @@
 
 initfn(...) {
 <...
-- if (e@p)
+- if (e)
 -     return e;
 - return 0;
 + return e;
@@ -145,12 +143,11 @@ identifier initfn;
 identifier f;
 expression list el;
 expression e;
-position p;
 @@
 
 initfn(...) {
 <...
-- e = f@p(el);
+- e = f(el);
 - return e;
 + return f(el);
 ...> }
@@ -159,35 +156,31 @@ initfn(...) {
 type T;
 identifier i;
 expression E;
-position p;
 @@
-- T i = E@p;
+- T i = E;
  ... when != i
 
 @unused_var depends on probe@
 type T;
 identifier i;
-position p;
 @@
-- T i@p;
+- T i;
  ... when != i
 
 @unnecessary_brackets depends on probe@
 expression e1, e2;
-position p;
 @@
 
-  if (e1@p)
+  if (e1)
 - {
     return e2;
 - }
 
 @rrem depends on remove@
 identifier remove.removefn;
-position p;
 @@
 
-- removefn@p(...) {
+- removefn(...) {
 ?-\(dev_warn\|dev_info\|pr_warn\|pr_crit\)(...);
 - return 0;
 - }
@@ -200,56 +193,56 @@ struct platform_driver p = {
 - .remove = \(__exit_p(removefn)\|removefn\),
 };
 
-@script:python@
-p << direct_return.p;
+@script:python depends on direct_return@
+p << probe.pos;
 @@
 
 print >> f, "%s:g1:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << direct_return2.p;
+@script:python depends on direct_return2@
+p << probe.pos;
 @@
 
-print >> f, "%s:g2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:g1:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << merge_return.p;
+@script:python depends on merge_return@
+p << probe.pos;
 @@
 
 print >> f, "%s:g3:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << extra_return.p;
+@script:python depends on extra_return@
+p << probe.pos;
 @@
 
 print >> f, "%s:g4:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << extra_return2.p;
+@script:python depends on extra_return2@
+p << probe.pos;
 @@
 
-print >> f, "%s:g5:%s" % (p[0].file, p[0].line)
+print >> f, "%s:g3:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << unused_assign.p;
+@script:python depends on unused_assign@
+p << probe.pos;
 @@
 
 print >> f, "%s:g6:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << unused_var.p;
+@script:python depends on unused_var@
+p << probe.pos;
 @@
 
 print >> f, "%s:g7:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << unnecessary_brackets.p;
+@script:python depends on unnecessary_brackets@
+p << probe.pos;
 @@
 
 print >> f, "%s:g8:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << rrem.p;
+@script:python depends on rrem@
+p << remove.pos;
 @@
 
 print >> f, "%s:g9:%s" % (p[0].file, p[0].line)

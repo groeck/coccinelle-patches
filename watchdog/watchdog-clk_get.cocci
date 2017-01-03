@@ -3,7 +3,7 @@ virtual patch
 @initialize:python@
 @@
 
-f = open('watchdog-clk_get.log', 'w')
+f = open('coccinelle.log', 'a')
 
 @probe@
 identifier p, probefn;
@@ -137,10 +137,10 @@ removefn(...)
 p << prb.p;
 @@
 
-print >> f, "%s:g1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:c4:%s" % (p[0].file, p[0].line)
 
 @script:python@
 p << prb2.p;
 @@
 
-print >> f, "%s:g2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:c5:%s" % (p[0].file, p[0].line)
