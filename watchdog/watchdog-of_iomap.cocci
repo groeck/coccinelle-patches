@@ -30,48 +30,32 @@ identifier probe.p, removefn;
 identifier probe.probefn;
 expression ap;
 position p;
-identifier ret;
-@@
-probefn(...)
-{
-  ...
-  int ret;
-<+...
-ap = of_iomap@p(...);
-...+>
-}
-
-@rx depends on r@
-identifier probe.probefn;
-expression e, ap;
-position r.p;
 @@
 probefn(...)
 {
 <+...
 ap = of_iomap@p(...);
-...
-when any
-e = devm_add_action_or_reset(..., ap);
 ...+>
 }
 
-@prb depends on !rx@
+@prb@
 identifier probe.probefn, pdev;
-expression ap;
+expression index;
+expression np, ap;
 position r.p;
 statement S;
-identifier r.ret;
 @@
 
 probefn(struct platform_device *pdev)
 {
++ struct resource *res;
   <+...
-  ap = of_iomap@p(...);
-  if (!ap) S
-+ ret = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))iounmap, ap);
-+ if (ret)
-+        return ret;
+- ap = of_iomap@p(np, index);
+- if (\(!ap\|ap==NULL\)) S
++ res = platform_get_resource(pdev, IORESOURCE_MEM, index);
++ ap = devm_ioremap_resource(&pdev->dev, res);
++ if (IS_ERR(ap))
++   return PTR_ERR(ap);
   ...
   when any
 ?-iounmap(ap);
