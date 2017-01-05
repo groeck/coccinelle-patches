@@ -1,4 +1,5 @@
-basedir=${1:-drivers/watchdog}
+subdir=${1:-drivers/watchdog}
+basedir=$(cd $(dirname $0); pwd)
 
 noclean=$2
 
@@ -8,8 +9,8 @@ run()
 {
     echo $1
 
-    make coccicheck COCCI=$1.cocci SPFLAGS="--linux-spacing" \
-    	MODE=patch M=${basedir} | patch -p 1
+    make coccicheck COCCI=${basedir}/$1.cocci SPFLAGS="--linux-spacing" \
+	MODE=patch M=${subdir} | patch -p 1
 }
 
 run watchdog-devm
