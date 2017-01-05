@@ -130,7 +130,7 @@ expression a.clk2;
 removefn(...)
 {
   <...
-- clk_put(clk);
+- clk_put(clk2);
   ...>
 }
 
