@@ -1,5 +1,7 @@
 basedir=${1:-drivers/watchdog}
 
+noclean=$2
+
 rm -f coccinelle.log
 
 run()
@@ -11,6 +13,7 @@ run()
 }
 
 run watchdog-devm
+run watchdog-shutdown
 run watchdog-irq
 run watchdog-clk_get
 run watchdog-of_clk
@@ -20,20 +23,22 @@ run watchdog-clk
 run watchdog-of_iomap
 # Only for iTCO, which we drop anyway
 # run watchdog-ioremap
-run watchdog-restart
-run watchdog-reboot
+# Done manually: use watchdog core
+# run watchdog-restart
+# Don't bother
+# run watchdog-reboot
 run watchdog-goto
 # This benefits from a second run
 run watchdog-goto
 run watchdog-pdata
 run watchdog-pdev
 
-# The following patches are known to be broken, problematic, or cosmetic
+if [ -n "${noclean}" ]
+then
+    exit 0
+fi
 
-# Would require other cleanup first
-#	(iomap/iounmap, request_resource and related cleanup)
-# rm drivers/watchdog/iTCO_wdt.c; git checkout drivers/watchdog/iTCO_wdt.c
-# rm drivers/watchdog/coh901327_wdt.c; git checkout drivers/watchdog/coh901327_wdt.c
+# The following patches are known to be broken, problematic, or cosmetic
 
 # static struct ie6xx_wdt_data should really be allocated
 rm drivers/watchdog/ie6xx_wdt.c; git checkout drivers/watchdog/ie6xx_wdt.c
@@ -41,17 +46,12 @@ rm drivers/watchdog/ie6xx_wdt.c; git checkout drivers/watchdog/ie6xx_wdt.c
 # possible impact from pm_runtime functions
 #	drivers/watchdog/renesas_wdt.c; git checkout drivers/watchdog/renesas_wdt.c
 #	drivers/watchdog/shwdt.c; git checkout drivers/watchdog/shwdt.c
-#
-
-# Avoid mess with odd clock handling
-rm drivers/watchdog/atlas7_wdt.c; git checkout drivers/watchdog/atlas7_wdt.c
 
 # uses miscdevice, don't bother
 rm drivers/watchdog/ath79_wdt.c; git checkout drivers/watchdog/ath79_wdt.c
 rm drivers/watchdog/ar7_wdt.c; git checkout drivers/watchdog/ar7_wdt.c
-
-# Cosmetic changes only
+rm drivers/watchdog/gef_wdt.c; git checkout drivers/watchdog/gef_wdt.c
+rm drivers/watchdog/at91rm9200_wdt.c; git checkout drivers/watchdog/at91rm9200_wdt.c
 rm drivers/watchdog/riowd.c; git checkout drivers/watchdog/riowd.c
 rm drivers/watchdog/sch311x_wdt.c; git checkout drivers/watchdog/sch311x_wdt.c
 rm drivers/watchdog/sp5100_tco.c; git checkout drivers/watchdog/sp5100_tco.c
-rm drivers/watchdog/at91rm9200_wdt.c; git checkout drivers/watchdog/at91rm9200_wdt.c
