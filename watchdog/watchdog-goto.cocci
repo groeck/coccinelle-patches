@@ -34,10 +34,10 @@ identifier l1,l2;
 @@
 
 fn(...) {
-<...
+<+...
 l1:@p1
 l2:
-...> }
+...+> }
 
 @fold_label depends on probe@
 identifier unneeded_label.fn;
@@ -48,7 +48,7 @@ statement S;
 @@
 
 fn(...) {
-<...
+<+...
 - goto l1;
 + goto l2;
   ...
@@ -57,7 +57,7 @@ fn(...) {
  l:@p1
  ...>
  l2:@p
-...> }
+...+> }
 
 @needed_return exists@
 identifier initfn;
@@ -80,12 +80,12 @@ position p != needed_return.p;
 @@
 
 initfn(...) {
-<...
+<+...
 - goto l1;
 + return e;
   ...
 - l1: return@p e;
-...> }
+...+> }
 
 @direct_return2 depends on probe@
 identifier initfn;
@@ -94,13 +94,13 @@ expression e;
 @@
 
 initfn(...) {
-<...
+<+...
 - goto l1;
 + return e;
    ...
 - l1:
   return e;
-...> }
+...+> }
 
 @merge_return depends on probe@
 identifier initfn;
@@ -108,11 +108,11 @@ expression ret, e;
 @@
 
 initfn(...) {
-<...
+<+...
 - ret = e;
 - return ret;
 + return e;
-...> }
+...+> }
 
 @empty_if depends on probe@
 identifier initfn;
@@ -120,10 +120,10 @@ expression e;
 @@
 
 initfn(...) {
-<...
+<+...
 - if (e)
 -  {}
-...> }
+...+> }
 
 @extra_return depends on probe@
 identifier initfn;
@@ -131,12 +131,12 @@ expression e;
 @@
 
 initfn(...) {
-<...
+<+...
 - if (e)
 -     return e;
 - return 0;
 + return e;
-...> }
+...+> }
 
 @extra_return2 depends on probe@
 identifier initfn;
@@ -146,11 +146,11 @@ expression e;
 @@
 
 initfn(...) {
-<...
+<+...
 - e = f(el);
 - return e;
 + return f(el);
-...> }
+...+> }
 
 @unused_assign depends on probe@
 type T;
