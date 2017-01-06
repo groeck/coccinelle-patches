@@ -25,17 +25,31 @@ identifier probe.p, removefn;
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-@prb depends on probe@
+@check depends on probe@
 identifier initfn, pdev;
 expression clk, e2;
+expression dev;
 position p;
+@@
+initfn(struct platform_device *pdev, ...)
+{
+<+...
+  clk = clk_get@p(dev, e2);
+...+>
+}
+
+@prb@
+identifier check.initfn, check.pdev;
+expression clk, e2;
+position check.p;
+expression check.dev != NULL;
 @@
 
 initfn(struct platform_device *pdev, ...)
 {
 <+...
-- clk = clk_get@p(&pdev->dev, e2);
-+ clk = devm_clk_get(&pdev->dev, e2);
+- clk = clk_get@p(dev, e2);
++ clk = devm_clk_get(dev, e2);
   ...
   when any
 ?-clk_put(clk);
@@ -78,7 +92,7 @@ probefn(...)
 {
 <+...
   clk = clk_get@p(NULL, e);
-  S
+  ... when != e
   e2 = devm_add_action_or_reset(..., e);
 ...+>
 }
@@ -135,7 +149,7 @@ removefn(...)
 }
 
 @script:python@
-p << prb.p;
+p << check.p;
 @@
 
 print >> f, "%s:c4:%s" % (p[0].file, p[0].line)
