@@ -66,19 +66,20 @@ probefn(...)
   ...+>
 }
 
-@rx depends on r@
+@rx@
 identifier probe.probefn;
-expression e;
+expression e, e2;
 position r.p;
 identifier ret;
 expression clk;
+statement S;
 @@
 probefn(...)
 {
 <+...
   clk = clk_get@p(NULL, e);
-  ... when any
-  devm_add_action_or_reset(..., e);
+  S
+  e2 = devm_add_action_or_reset(..., e);
 ...+>
 }
 
