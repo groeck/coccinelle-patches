@@ -48,9 +48,9 @@ identifier stop.stopfn, shutdown.shutdownfn;
 @@
 
   shutdownfn(...) {
-  ...
+  <+...
   stopfn(...);
-  ...
+  ...+>
   }
 
 @wreg depends on probe@
