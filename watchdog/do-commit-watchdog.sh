@@ -69,6 +69,10 @@ findlog()
 - Replace request_irq() with devm_request_irq()"
 		d=1
 		;;
+	   "m1")
+		outmsg="${outmsg}
+- Drop unnecessary mutex_destroy() on allocated data"
+		;;
 	   "o1a")
 		outmsg="${outmsg}
 - Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'"

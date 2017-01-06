@@ -28,6 +28,7 @@ run watchdog-of_iomap
 # run watchdog-restart
 # Don't bother
 # run watchdog-reboot
+run watchdog-mutex
 run watchdog-goto
 # This benefits from a second run
 run watchdog-goto
