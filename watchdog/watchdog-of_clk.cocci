@@ -25,85 +25,26 @@ identifier probe.p, removefn;
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-@r depends on probe@
-identifier initfn;
+@prb_c depends on probe@
+identifier initfn, pdev;
 expression clk;
 position p;
-identifier ret;
 @@
-initfn(...)
-{
-  ...
-  int ret;
-<+...
-(
-clk = of_clk_get@p(...);
-|
-clk = of_clk_get_by_name@p(...);
-)
-...+>
-}
 
-@rx depends on r@
-identifier r.initfn;
-expression e, clk;
-position r.p;
-@@
-initfn(...)
+initfn@p(struct platform_device *pdev, ...)
 {
 <+...
-(
-clk = of_clk_get@p(...);
-|
-clk = of_clk_get_by_name@p(...);
-)
-...
-when any
-e = devm_add_action_or_reset(..., clk);
-...+>
-}
-
-@prb depends on !rx@
-identifier r.initfn, pdev;
-expression clk;
-position r.p;
-statement S;
-identifier r.ret;
-@@
-
-initfn(struct platform_device *pdev, ...)
-{
-  <+...
-(
-clk = of_clk_get@p(...);
-|
-clk = of_clk_get_by_name@p(...);
-)
-(
-  if (IS_ERR(clk)) S
-+ ret = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))clk_put, clk);
-+ if (ret)
-+        return ret;
-|
-  if (!IS_ERR(clk)) {
-+ ret = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))clk_put, clk);
-+ if (ret)
-+        return ret;
-  ...
-  when any
-?-clk_put(clk);
-  ...
-  }
-)
+- clk = of_clk_get(..., 0);
++ clk = devm_clk_get(&pdev->dev, NULL);
   ...
   when any
 ?-clk_put(clk);
 ...+>
 }
 
-@rem depends on prb@
+@rem_c@
 identifier remove.removefn, probe.probefn;
-expression prb.clk;
+expression prb_c.clk;
 @@
 
 (
@@ -118,14 +59,14 @@ probefn
   ...>
 }
 
-@a depends on prb@
-expression prb.clk, clk2;
+@ac@
+expression prb_c.clk, clk2;
 @@
 clk2 = clk;
 
-@rem2 depends on a@
+@rem2_c@
 identifier remove.removefn;
-expression a.clk2;
+expression ac.clk2;
 @@
 removefn(...)
 {
@@ -134,8 +75,65 @@ removefn(...)
   ...>
 }
 
-@script:python depends on prb@
-p << r.p;
+@prb_cn@
+identifier initfn, pdev;
+expression clk;
+position p;
+expression np, name;
 @@
 
-print >> f, "%s:o1:%s" % (p[0].file, p[0].line)
+initfn@p(struct platform_device *pdev, ...)
+{
+<+...
+- clk = of_clk_get_by_name(np, name);
++ clk = devm_clk_get_by_name(&pdev->dev, name);
+  ...
+  when any
+?-clk_put(clk);
+...+>
+}
+
+@rem_cn@
+identifier remove.removefn, probe.probefn;
+expression prb_cn.clk;
+@@
+
+(
+removefn
+|
+probefn
+)
+  (...)
+{
+  <...
+- clk_put(clk);
+  ...>
+}
+
+@acn@
+expression prb_cn.clk, clk2;
+@@
+clk2 = clk;
+
+@rem2_cn@
+identifier remove.removefn;
+expression acn.clk2;
+@@
+removefn(...)
+{
+  <...
+- clk_put(clk2);
+  ...>
+}
+
+@script:python@
+p << prb_c.p;
+@@
+
+print >> f, "%s:o1a:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << prb_cn.p;
+@@
+
+print >> f, "%s:o1b:%s" % (p[0].file, p[0].line)

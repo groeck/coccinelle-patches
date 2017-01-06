@@ -69,10 +69,14 @@ findlog()
 - Replace request_irq() with devm_request_irq()"
 		d=1
 		;;
-	   "o1")
+	   "o1a")
 		outmsg="${outmsg}
-- Use devm_add_action_or_reset() for calls to clk_put() after of_clk_get()
-  and of_clk_get_by_name()"
+- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'"
+		d=1
+		;;
+	   "o1b")
+		outmsg="${outmsg}
+- Replace 'of_clk_get_by_name(np, name)' with 'devm_clk_get(dev, name)'"
 		d=1
 		;;
 	   "o2")
