@@ -1,0 +1,12 @@
+devm_add_action_or_reset
+
+input
+	-> peripheral_free_list
+
+common
+	device_create_file -> device_remove_file
+	device_init_wakeup(..., true) -> device_init_wakeup(..., false);
+
+Figure out:
+	key_dev = NULL;
+	return error;

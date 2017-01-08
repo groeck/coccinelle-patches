@@ -34,7 +34,11 @@ position p;
 probefn(...)
 {
 <+...
+(
 request_irq@p(irq, ...)
+|
+request_threaded_irq@p(irq, ...)
+)
 ...+>
 }
 
@@ -48,8 +52,13 @@ expression irq;
 probefn(struct platform_device *pdev)
 {
   <+...
+(
 - request_irq@p(irq, es)
 + devm_request_irq(&pdev->dev, irq, es)
+|
+- request_threaded_irq@p(irq, es)
++ devm_request_threaded_irq(&pdev->dev, irq, es)
+)
   ...
   when any
 ?-free_irq(irq, ...);

@@ -15,25 +15,25 @@ run()
 
 run watchdog-devm
 run watchdog-shutdown
-run watchdog-irq
-run watchdog-clk_get
+run ../common/irq
+run ../common/clk_get
 run watchdog-of_clk
 run watchdog-clkreturn
-run watchdog-clk2
-run watchdog-clk
+run ../common/clk2
+run ../common/clk
 run watchdog-of_iomap
 # Only for iTCO, which we drop anyway
-# run watchdog-ioremap
+# run ../common/ioremap
 # Done manually: use watchdog core
 # run watchdog-restart
 # Don't bother
 # run watchdog-reboot
-run watchdog-mutex
-run watchdog-goto
+run ../common/mutex_destroy
+run ../common/goto
 # This benefits from a second run
-run watchdog-goto
-run watchdog-pdata
-run watchdog-pdev
+run ../common/goto
+run ../common/pdata
+run ../common/pdev
 
 if [ -n "${noclean}" ]
 then

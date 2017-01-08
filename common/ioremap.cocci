@@ -1,5 +1,10 @@
 virtual patch
 
+@initialize:python@
+@@
+
+f = open('coccinelle.log', 'a')
+
 @probe@
 identifier p, probefn;
 declarer name module_platform_driver_probe;
@@ -29,7 +34,11 @@ position p;
 probefn(...)
 {
 <+...
+(
 ap = ioremap@p(...);
+|
+ap = ioremap_nocache@p(...);
+)
 ...+>
 }
 
@@ -44,8 +53,13 @@ statement S;
 probefn(struct platform_device *pdev)
 {
   <+...
+(
 - ap = ioremap@p(es);
 + ap = devm_ioremap(&pdev->dev, es);
+|
+- ap = ioremap_nocache@p(es);
++ ap = devm_ioremap_nocache(&pdev->dev, es);
+)
   ...
   when any
 ?-iounmap(ap);
@@ -59,9 +73,9 @@ expression prb.ap;
 
 removefn(...)
 {
-  <+...
-?-iounmap(ap);
-  ...+>
+  <...
+- iounmap(ap);
+  ...>
 }
 
 @a depends on prb@
@@ -75,7 +89,13 @@ expression a.ap2;
 @@
 removefn(...)
 {
-  <+...
+  <...
 - iounmap(ap2);
-  ...+>
+  ...>
 }
+
+@script:python depends on prb@
+p << r.p;
+@@
+
+print >> f, "%s:i1:%s" % (p[0].file, p[0].line)

@@ -34,7 +34,7 @@ position p;
 @@
   probefn(...) {
   <+...
-  data = \(devm_kzalloc\|kzalloc\)(...);
+  data = \(devm_kzalloc\|kzalloc\|kmalloc\)(...);
   ...
   mutex_init@p(&data->lock);
   ...+>
