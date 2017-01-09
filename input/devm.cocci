@@ -36,9 +36,9 @@ identifier initfn, pdev;
 expression d, d2;
 position p;
 @@
-initfn(struct platform_device *pdev, ...) {
+initfn@p(struct platform_device *pdev, ...) {
   <+...
-- d = input_allocate_device@p()
+- d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
   ... when any
   d2 = d;
@@ -54,9 +54,9 @@ identifier initfn, pdev;
 expression d;
 position p;
 @@
-initfn(struct platform_device *pdev, ...) {
+initfn@p(struct platform_device *pdev, ...) {
   <+...
-- d = input_allocate_device@p()
+- d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
   ... when any
 ?-input_unregister_device(d);
@@ -79,9 +79,9 @@ identifier initfn, pdev;
 expression d, d2;
 position p;
 @@
-initfn(struct platform_device *pdev, ...) {
+initfn@p(struct platform_device *pdev, ...) {
   <+...
-- d = input_allocate_polled_device@p()
+- d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
   ... when any
   d2 = d;
@@ -97,9 +97,9 @@ identifier initfn, pdev;
 expression d;
 position p;
 @@
-initfn(struct platform_device *pdev, ...) {
+initfn@p(struct platform_device *pdev, ...) {
   <+...
-- d = input_allocate_polled_device@p()
+- d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
   ... when any
 ?-input_unregister_polled_device(d);
@@ -130,10 +130,22 @@ removefn(...) {
 p << a.p;
 @@
 
-print >> f, "%s:ia1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:devm1:%s" % (p[0].file, p[0].line)
 
 @script:python@
 p << a2.p;
 @@
 
-print >> f, "%s:ia1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:devm1:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << ap.p;
+@@
+
+print >> f, "%s:devm1:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << ap2.p;
+@@
+
+print >> f, "%s:devm1:%s" % (p[0].file, p[0].line)

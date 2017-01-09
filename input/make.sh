@@ -56,6 +56,30 @@ cleanup drivers/input/misc/bfin_rotary.c
 cleanup drivers/input/misc/wistron_btns.c
 cleanup drivers/input/keyboard/goldfish_events.c
 cleanup drivers/input/misc/tps65218-pwrbutton.c
+cleanup drivers/input/touchscreen/zylonite-wm97xx.c
+cleanup drivers/input/touchscreen/mainstone-wm97xx.c
+cleanup drivers/input/touchscreen/jornada720_ts.c
+cleanup drivers/input/touchscreen/intel-mid-touch.c
+cleanup drivers/input/touchscreen/da9034-ts.c
+cleanup drivers/input/touchscreen/colibri-vf50-ts.c # platform_set_drvdata
+cleanup drivers/input/touchscreen/88pm860x-ts.c
+cleanup drivers/input/misc/twl4030-pwrbutton.c # platform_set_drvdata
+cleanup drivers/input/misc/soc_button_array.c # pdev->dev
+cleanup drivers/input/misc/retu-pwrbutton.c # drop remove function
+cleanup drivers/input/misc/hisi_powerkey.c # pdev->dev -> dev
+cleanup drivers/input/misc/e3x0-button.c # platform_set_drvdata
+cleanup drivers/input/misc/gpio_decoder.c # platform_set_drvdata
+cleanup drivers/input/misc/da9063_onkey.c # platform_set_drvdata
+cleanup drivers/input/misc/arizona-haptics.c # platform_set_drvdata
+cleanup drivers/input/misc/ab8500-ponkey.c # platform_set_drvdata
+cleanup drivers/input/keyboard/sun4i-lradc-keys.c # platform_set_drvdata
+cleanup drivers/input/keyboard/pmic8xxx-keypad.c
+cleanup drivers/input/keyboard/opencores-kbd.c # platform_set_drvdata
+cleanup drivers/input/keyboard/nspire-keypad.c # platform_set_drvdata
+cleanup drivers/input/keyboard/jornada680_kbd.c # platform_set_drvdata
+cleanup drivers/input/keyboard/gpio_keys_polled.c # platform_set_drvdata, pdev
+cleanup drivers/input/keyboard/gpio_keys.c # pdev
+cleanup drivers/input/keyboard/cros_ec_keyb.c # dev_set_drvdata
 
 # wrong or too complex
 cleanup drivers/input/misc/bfin_rotary.c

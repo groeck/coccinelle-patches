@@ -39,6 +39,7 @@ findlog_common()
 	   "goto4")
 		outmsg="${outmsg}
 - Replace 'if (e) return e; return 0;' with 'return e;'"
+		g4=1
 		;;
 	   "goto6")
 		outmsg="${outmsg}
@@ -116,16 +117,19 @@ findlog_common()
 		;;
 	   "pdata1")
 		outmsg="${outmsg}
-- Drop no longer required platform_set_drvdata()"
+- Drop platform_set_drvdata()"
+		x=1
 		;;
 	   "pdata2")
 		outmsg="${outmsg}
-- Drop no longer required dev_set_drvdata()"
+- Drop dev_set_drvdata()"
+		y=1
 		;;
 	   "pdev1")
 		outmsg="${outmsg}
 - Replace &pdev->dev with dev if 'struct device *dev' is a declared
   variable"
+  		p=1
 		;;
 	   *)
 		;;
