@@ -65,12 +65,64 @@ initfn(struct platform_device *pdev, ...) {
   ...+>
 }
 
-@rem depends on a || a2@
+@rema depends on a || a2@
 identifier remove.removefn;
 @@
 removefn(...) {
   <...
 - input_unregister_device(...);
+  ...>
+}
+
+@ap depends on probe@
+identifier initfn, pdev;
+expression d, d2;
+position p;
+@@
+initfn(struct platform_device *pdev, ...) {
+  <+...
+- d = input_allocate_polled_device@p()
++ d = devm_input_allocate_polled_device(&pdev->dev)
+  ... when any
+  d2 = d;
+  ... when any
+?-input_unregister_polled_device(\(d\|d2\));
+  ... when any
+?-input_free_polled_device(\(d\|d2\));
+  ...+>
+}
+
+@ap2 depends on probe@
+identifier initfn, pdev;
+expression d;
+position p;
+@@
+initfn(struct platform_device *pdev, ...) {
+  <+...
+- d = input_allocate_polled_device@p()
++ d = devm_input_allocate_polled_device(&pdev->dev)
+  ... when any
+?-input_unregister_polled_device(d);
+  ... when any
+?-input_free_polled_device(d);
+  ...+>
+}
+
+@remap depends on ap || ap2@
+identifier remove.removefn;
+@@
+removefn(...) {
+  <...
+- input_unregister_polled_device(...);
+  ...>
+}
+
+@remapf depends on ap || ap2@
+identifier remove.removefn;
+@@
+removefn(...) {
+  <...
+- input_free_polled_device(...);
   ...>
 }
 
