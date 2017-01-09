@@ -25,6 +25,51 @@ identifier probe.p, removefn;
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
+@check0 depends on probe@
+identifier initfn, pdev;
+expression clk, clk2, e2;
+expression dev;
+position p;
+@@
+initfn(struct platform_device *pdev, ...)
+{
+<+...
+  clk = clk_get@p(dev, e2);
+  ... when any
+  clk2 = clk;
+...+>
+}
+
+@prb0@
+identifier check0.initfn, check0.pdev;
+expression clk, check0.clk2, e2;
+position check0.p;
+expression check0.dev != NULL;
+@@
+
+initfn(struct platform_device *pdev, ...)
+{
+<+...
+- clk = clk_get@p(dev, e2);
++ clk = devm_clk_get(dev, e2);
+  ...
+  when any
+?-clk_put(\(clk\|clk2\));
+...+>
+}
+
+@rem0@
+identifier remove.removefn;
+expression prb0.clk, check0.clk2;
+@@
+
+removefn(...)
+{
+  <...
+- clk_put(\(clk\|clk2\));
+  ...>
+}
+
 @check depends on probe@
 identifier initfn, pdev;
 expression clk, e2;
@@ -152,10 +197,10 @@ removefn(...)
 p << check.p;
 @@
 
-print >> f, "%s:c4:%s" % (p[0].file, p[0].line)
+print >> f, "%s:clk4:%s" % (p[0].file, p[0].line)
 
 @script:python@
 p << prb2.p;
 @@
 
-print >> f, "%s:c5:%s" % (p[0].file, p[0].line)
+print >> f, "%s:clk5:%s" % (p[0].file, p[0].line)

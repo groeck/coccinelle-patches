@@ -127,4 +127,4 @@ removefn(...)
 p << r.pr;
 @@
 
-print >> f, "%s:i1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:ioremap2:%s" % (p[0].file, p[0].line)

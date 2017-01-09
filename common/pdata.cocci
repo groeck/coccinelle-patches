@@ -63,10 +63,10 @@ probefn(...) {
 p << r1.p;
 @@
 
-print >> f, "%s:p1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:pdata1:%s" % (p[0].file, p[0].line)
 
 @script:python@
 p << r2.p;
 @@
 
-print >> f, "%s:p2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:pdata2:%s" % (p[0].file, p[0].line)

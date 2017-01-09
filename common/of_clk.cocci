@@ -130,10 +130,10 @@ removefn(...)
 p << prb_c.p;
 @@
 
-print >> f, "%s:o1a:%s" % (p[0].file, p[0].line)
+print >> f, "%s:ofclk1:%s" % (p[0].file, p[0].line)
 
 @script:python@
 p << prb_cn.p;
 @@
 
-print >> f, "%s:o1b:%s" % (p[0].file, p[0].line)
+print >> f, "%s:ofclk2:%s" % (p[0].file, p[0].line)

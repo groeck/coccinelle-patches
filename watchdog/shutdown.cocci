@@ -132,4 +132,4 @@ removefn(struct platform_device *pdev)
 p << probe.pos;
 @@
 
-print >> f, "%s:s1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:shutdown1:%s" % (p[0].file, p[0].line)

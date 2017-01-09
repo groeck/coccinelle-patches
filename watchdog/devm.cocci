@@ -54,4 +54,4 @@ removefn(...) {
 p << prb.p;
 @@
 
-print >> f, "%s:d1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:devm1:%s" % (p[0].file, p[0].line)

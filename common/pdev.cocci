@@ -56,4 +56,4 @@ probefn(struct platform_device *pdev) {
 p << prb.p;
 @@
 
-print >> f, "%s:p3:%s" % (p[0].file, p[0].line)
+print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)

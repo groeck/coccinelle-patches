@@ -125,16 +125,27 @@ initfn(...) {
 -  {}
 ...+> }
 
-@extra_return depends on probe@
+@empty_while depends on probe@
 identifier initfn;
 expression e;
 @@
 
 initfn(...) {
 <+...
-- if (e)
+- while (e)
+-  {}
+...+> }
+
+@extra_return depends on probe@
+identifier initfn;
+expression e, e1;
+@@
+
+initfn(...) {
+<+...
+- if (\(e\|e<0\|e>0\|e!=e1\))
 -     return e;
-- return 0;
+- return \(0\|e\);
 + return e;
 ...+> }
 
@@ -224,58 +235,70 @@ struct platform_driver p = {
 p << probe.pos;
 @@
 
-print >> f, "%s:g1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto1:%s" % (p[0].file, p[0].line)
 
 @script:python depends on direct_return2@
 p << probe.pos;
 @@
 
-print >> f, "%s:g1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto1:%s" % (p[0].file, p[0].line)
 
 @script:python depends on merge_return@
 p << probe.pos;
 @@
 
-print >> f, "%s:g3:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto3:%s" % (p[0].file, p[0].line)
 
 @script:python depends on extra_return@
 p << probe.pos;
 @@
 
-print >> f, "%s:g4:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto4:%s" % (p[0].file, p[0].line)
 
 @script:python depends on extra_return2@
 p << probe.pos;
 @@
 
-print >> f, "%s:g3:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto3:%s" % (p[0].file, p[0].line)
 
 @script:python depends on unused_assign@
 p << probe.pos;
 @@
 
-print >> f, "%s:g6:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto6:%s" % (p[0].file, p[0].line)
 
 @script:python depends on unused_assign2@
 p << probe.pos;
 @@
 
-print >> f, "%s:g6:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto6:%s" % (p[0].file, p[0].line)
 
 @script:python depends on unused_var@
 p << probe.pos;
 @@
 
-print >> f, "%s:g7:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto7:%s" % (p[0].file, p[0].line)
 
 @script:python depends on unnecessary_brackets@
 p << probe.pos;
 @@
 
-print >> f, "%s:g8:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto8:%s" % (p[0].file, p[0].line)
 
 @script:python depends on rrem@
 p << remove.pos;
 @@
 
-print >> f, "%s:g9:%s" % (p[0].file, p[0].line)
+print >> f, "%s:goto9:%s" % (p[0].file, p[0].line)
+
+@script:python depends on empty_if@
+p << remove.pos;
+@@
+
+print >> f, "%s:goto10:%s" % (p[0].file, p[0].line)
+
+@script:python depends on empty_while@
+p << remove.pos;
+@@
+
+print >> f, "%s:goto11:%s" % (p[0].file, p[0].line)

@@ -27,29 +27,31 @@ identifier probe.p, removefn;
 
 
 @r depends on probe@
-identifier probe.probefn;
+identifier initfn;
 expression irq;
 position p;
 @@
-probefn(...)
+initfn(...)
 {
 <+...
 (
 request_irq@p(irq, ...)
 |
 request_threaded_irq@p(irq, ...)
+|
+request_any_context_irq@p(irq, ...)
 )
 ...+>
 }
 
 @prb@
-identifier probe.probefn, pdev;
+identifier r.initfn, pdev;
 expression list es;
 position r.p;
 expression irq;
 @@
 
-probefn(struct platform_device *pdev)
+initfn(struct platform_device *pdev, ...)
 {
   <+...
 (
@@ -58,6 +60,9 @@ probefn(struct platform_device *pdev)
 |
 - request_threaded_irq@p(irq, es)
 + devm_request_threaded_irq(&pdev->dev, irq, es)
+|
+- request_any_context_irq(irq, es)
++ devm_request_any_context_irq(&pdev->dev, es)
 )
   ...
   when any
@@ -93,8 +98,21 @@ removefn(...)
   ...+>
 }
 
+@ia depends on prb@
+expression prb.irq;
+expression e;
+@@
+irq = e;
+
+@remi depends on prb@
+expression ia.e;
+@@
+  <+...
+- free_irq(e,...);
+  ...+>
+
 @script:python depends on prb@
 p << r.p;
 @@
 
-print >> f, "%s:i1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:irq1:%s" % (p[0].file, p[0].line)

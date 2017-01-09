@@ -1,118 +1,30 @@
-findlog()
+basedir=$(cd $(dirname $0); pwd)
+
+. ${basedir}/../common/findlog-common.sh
+
+findlog_watchdog()
 {
 	local file=$1
-
-	outmsg=""
-	d=0
-	o=0
-	s=1
 
 	for action in $(grep ${file} coccinelle.log | cut -f2 -d: | sort -u)
 	do
 	   case "${action}" in
-	   "c1" | "c2")
-		outmsg="${outmsg}
-- Use devm_add_action_or_reset() for calls to clk_disable_unprepare"
-		d=1
-		;;
-	   "c3")
-		outmsg="${outmsg}
-- Check return value from clk_prepare_enable()"
-		o=1
-		;;
-	   "c4")
-		outmsg="${outmsg}
-- Use devm_clk_get() if the device parameter is not NULL"
-		d=1
-		;;
-	   "c5")
-		outmsg="${outmsg}
-- Use devm_add_action_or_reset() for calls to clk_put() after clk_get()
-  with NULL device parameter"
-		d=1
-		;;
-	   "d1")
+	   "devm1")
 		outmsg="${outmsg}
 - Use devm_watchdog_register_driver() to register watchdog device"
 		d=1
 		;;
-	   "g1")
-		outmsg="${outmsg}
-- Replace 'goto l; ... l: return e;' with 'return e;'"
-		;;
-	   "g3" | "g5")
-		outmsg="${outmsg}
-- Replace 'val = e; return val;' with 'return e;'"
-		;;
-	   "g4")
-		outmsg="${outmsg}
-- Replace 'if (e) return e; return 0;' with 'return e;'"
-		;;
-	   "g6")
-		outmsg="${outmsg}
-- Drop assignments to unused variables"
-		;;
-	   "g7")
-		outmsg="${outmsg}
-- Drop unused variables"
-		;;
-	   "g8")
-		outmsg="${outmsg}
-- replace 'if (e) { return expr; }' with 'if (e) return expr;'"
-		;;
-	   "g9")
-		outmsg="${outmsg}
-- Drop remove function"
-		;;
-	   "i1")
-		outmsg="${outmsg}
-- Replace request_irq() with devm_request_irq()"
-		d=1
-		;;
-	   "m1")
-		outmsg="${outmsg}
-- Drop unnecessary mutex_destroy() on allocated data"
-		;;
-	   "o1a")
-		outmsg="${outmsg}
-- Replace 'of_clk_get(np, 0)' with 'devm_clk_get(dev, NULL)'"
-		d=1
-		;;
-	   "o1b")
-		outmsg="${outmsg}
-- Replace 'of_clk_get_by_name(np, name)' with 'devm_clk_get(dev, name)'"
-		d=1
-		;;
-	   "o2")
-		outmsg="${outmsg}
-- Replace of_iomap() with platform_get_resource() followed by
-  devm_ioremap_resource()"
-		d=1
-		;;
-	   "p1")
-		outmsg="${outmsg}
-- Drop no longer required platform_set_drvdata()"
-		;;
-	   "p2")
-		outmsg="${outmsg}
-- Drop no longer required dev_set_drvdata()"
-		;;
-	   "p3")
-		outmsg="${outmsg}
-- Replace &pdev->dev with dev if 'struct device *dev' is a declared
-  variable"
-		;;
-	   "r1")
+	   "reboot1")
 		outmsg="${outmsg}
 - Use devm_add_action_or_reset for calls to unregister_reboot_notifier"
 		d=1
 		;;
-	   "r2")
+	   "restart1")
 		outmsg="${outmsg}
 - Use devm_add_action_or_reset for calls to unregister_restart_handler"
 		d=1
 		;;
-	   "s1")
+	   "shutdown1")
 		outmsg="${outmsg}
 - Replace shutdown function with call to watchdog_stop_on_reboot()"
 		o=1
@@ -148,7 +60,14 @@ git status | grep modified: | awk '{print $2}' | while read a
 do
     echo "Handling $a"
     git add $a
-    findlog $a
+
+    outmsg=""
+    d=0
+    o=0
+    s=0
+
+    findlog_common $a
+    findlog_watchdog $a
     maintainers $a
     subject=""
     msg=""

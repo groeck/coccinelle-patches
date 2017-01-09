@@ -32,7 +32,7 @@ position p;
 probefn(...)
 {
 <+...
-  register_reboot_notifier@p(...);
+  register_restart_handler@p(...);
 ...+>
 }
 
@@ -45,7 +45,7 @@ identifier ret;
 probefn(...)
 {
 <+...
-  register_reboot_notifier@p(e);
+  register_restart_handler@p(e);
   ... when any
   devm_add_action_or_reset(..., e);
 ...+>
@@ -55,17 +55,24 @@ probefn(...)
 identifier probe.probefn, pdev;
 expression e;
 statement S;
+identifier ret;
 position p;
 @@
 
 probefn(struct platform_device *pdev, ...)
 {
   <+...
-  if (register_reboot_notifier@p(e)) S
-+ if (register_reboot_notifier(e))
-+  S
+(
+  ret = register_restart_handler@p(e);
+- if (ret) S
++ if (ret)
++    S
 + else
-+   devm_add_action_or_reset(&pdev->dev, (void (*)(void *))unregister_reboot_notifier, e);
++    devm_add_action_or_reset(&pdev->dev, (void (*)(void *))unregister_restart_handler, e);
+|
+  register_restart_handler(e);
++ devm_add_action_or_reset(&pdev->dev, (void (*)(void *))unregister_restart_handler, e);
+)
   ...+>
 }
 
@@ -77,7 +84,7 @@ expression prb.e;
 removefn(...)
 {
   <+...
-?-unregister_reboot_notifier(e);
+?-unregister_restart_handler(e);
   ...+>
 }
 
@@ -85,4 +92,4 @@ removefn(...)
 p << prb.p;
 @@
 
-print >> f, "%s:r1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:restart1:%s" % (p[0].file, p[0].line)

@@ -61,4 +61,4 @@ initfn(struct platform_device *pdev, ...)
 p << r.p;
 @@
 
-print >> f, "%s:c3:%s" % (p[0].file, p[0].line)
+print >> f, "%s:clk3:%s" % (p[0].file, p[0].line)

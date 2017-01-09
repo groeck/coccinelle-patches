@@ -117,4 +117,4 @@ removefn(...)
 p << r.p;
 @@
 
-print >> f, "%s:c2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:clk2:%s" % (p[0].file, p[0].line)

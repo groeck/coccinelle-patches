@@ -41,8 +41,6 @@ probefn(...) {
   ...+>
 }
 
-
-
 @alloc@
 identifier probe.probefn, pdev;
 expression e, e1, e2;
@@ -78,4 +76,4 @@ removefn(...) {
 p << alloc.p1;
 @@
 
-print >> f, "%s:kz1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:kzalloc1:%s" % (p[0].file, p[0].line)

@@ -13,15 +13,15 @@ run()
 	MODE=patch M=${subdir} | patch -p 1
 }
 
-run watchdog-devm
-run watchdog-shutdown
+run devm
+run shutdown
 run ../common/irq
 run ../common/clk_get
-run watchdog-of_clk
-run watchdog-clkreturn
+run ../common/of_clk
+run ../common/clkreturn
 run ../common/clk2
 run ../common/clk
-run watchdog-of_iomap
+run ../common/of_iomap
 # Only for iTCO, which we drop anyway
 # run ../common/ioremap
 # Done manually: use watchdog core

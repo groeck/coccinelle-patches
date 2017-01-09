@@ -94,4 +94,4 @@ removefn(...)
 p << r.p;
 @@
 
-print >> f, "%s:o2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:ofiomap1:%s" % (p[0].file, p[0].line)
