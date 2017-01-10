@@ -142,6 +142,11 @@ findlog_common()
   Introduce helper function since we can not call del_timer_sync() directly"
 		d=1
 		;;
+	    "worker1")
+		outmsg="${outmsg}
+- Call cancel_delayed_work_sync() using devm_add_action_or_reset()"
+		o=1
+		;;
 	   *)
 		;;
 	   esac

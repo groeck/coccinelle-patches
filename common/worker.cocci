@@ -77,14 +77,69 @@ identifier pdev;
 
 initfn(struct platform_device *pdev)
 {
-+ int werror;
++ int wer;
   <+...
   INIT_DELAYED_WORK@p(w, e);
-+ werror = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))cancel_delayed_work_sync, w);
-+ if (werror)
-+        return werror;
++ wer = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))cancel_delayed_work_sync, w);
++ if (wer)
++        return wer;
   ... when any
 ?-cancel_delayed_work_sync(w);
+...+>
+}
+
+// Try to do some variable folding.
+// To do that, identify the newly introduced error variable as well
+// as some other variable commonly used as return variable.
+// If both are found, replace the new error variable with the already
+// available variable.
+
+@werr depends on worker_probe@
+identifier worker.initfn;
+identifier err;
+expression w;
+@@
+initfn(...)
+{
+  int err;
+<...
+  INIT_DELAYED_WORK(w, ...);
+  err = devm_add_action_or_reset(..., w);
+...>
+}
+
+@wret depends on worker_probe@
+identifier worker.initfn;
+identifier ret != werr.err;
+@@
+initfn(...)
+{
+<...
+  ret =
+(
+  watchdog_register_device
+|
+  devm_watchdog_register_device
+|
+  misc_register
+|
+  input_register_device
+)
+  (...);
+...>
+}
+
+@depends on wret && werr@
+identifier worker.initfn;
+identifier werr.err;
+identifier wret.ret;
+@@
+initfn(...)
+{
+- int err;
+<+...
+- err
++ ret
 ...+>
 }
 
