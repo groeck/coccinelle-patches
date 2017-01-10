@@ -8,6 +8,10 @@ script. For example, to run the scripts for the watchdog subsystem, run
 sh <gitroot>/watchdog/make.sh
 sh <gitroot>/watchdog/do-commit.sh
 
+Please note that a recent version of coccinelle (sha 45ef175b2e45 or later)
+is required to run the scripts. Coccinelle is available from
+git@github.com:coccinelle/coccinelle.git.
+
 As always, make sure that the result compiles and is correct.
 
 The scripts can easily be expanded to cover additional subsystems.
