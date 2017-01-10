@@ -1,0 +1,23 @@
+The coccinelle semantic patches in this repository are expected to be applied
+to the Linux kernel.
+
+The scripts need to be run from the Linux source directory. In general, there
+is one or more 'make' script in a subdirectory, as well as one or more commit
+script. For example, to run the scripts for the watchdog subsystem, run
+
+sh <gitroot>/watchdog/make.sh
+sh <gitroot>/watchdog/do-commit.sh
+
+As always, make sure that the result compiles and is correct.
+
+The scripts can easily be expanded to cover additional subsystems.
+To do so, copy the make and commit scripts from an existing directory
+to a new subdirectory, and make adjustments as necessary. In many cases,
+the existing make scripts will just run, but should be updated to add
+exclusions and subsystem specific details. Commit scripts need to be updated
+to reflect subsystem specific headers and other information asked for by the
+subsystem maintainer. For example, running input/make-base.sh on drivers/gpio
+yields (mostly sensible) changes in more than 50 files.
+
+The semantic patches were developed with substantial support from Julia Lawall.
+Without her help, none of this would have been possible.
