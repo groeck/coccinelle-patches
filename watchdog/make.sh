@@ -16,6 +16,7 @@ run()
 run devm
 run shutdown
 run ../common/irq
+run ../common/timer
 run ../common/clk_get
 run ../common/of_clk
 run ../common/clkreturn
