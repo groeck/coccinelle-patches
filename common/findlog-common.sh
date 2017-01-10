@@ -131,6 +131,11 @@ findlog_common()
   variable"
   		p=1
 		;;
+	   "timer1")
+		outmsg="${outmsg}
+- Call del_timer() using devm_add_action()"
+		d=1
+		;;
 	   *)
 		;;
 	   esac
