@@ -53,6 +53,7 @@ rm drivers/watchdog/ie6xx_wdt.c; git checkout drivers/watchdog/ie6xx_wdt.c
 # uses miscdevice, don't bother
 rm drivers/watchdog/ath79_wdt.c; git checkout drivers/watchdog/ath79_wdt.c
 rm drivers/watchdog/ar7_wdt.c; git checkout drivers/watchdog/ar7_wdt.c
+rm drivers/watchdog/cpwd.c; git checkout drivers/watchdog/cpwd.c
 rm drivers/watchdog/gef_wdt.c; git checkout drivers/watchdog/gef_wdt.c
 rm drivers/watchdog/at91rm9200_wdt.c; git checkout drivers/watchdog/at91rm9200_wdt.c
 rm drivers/watchdog/riowd.c; git checkout drivers/watchdog/riowd.c
