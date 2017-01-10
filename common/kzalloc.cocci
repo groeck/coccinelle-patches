@@ -28,12 +28,12 @@ identifier probe.p, removefn;
 // Note: devm_kzalloc() must not be called for parameters
 // to serio_register_port().
 
-@serio@
-identifier probe.probefn, pdev;
+@serio depends on probe@
+identifier initfn;
 expression e, e1, e2;
 position p;
 @@
-probefn(...) {
+initfn(...) {
   <+...
   e = kzalloc@p(e1, e2)
   ... when any
@@ -41,13 +41,13 @@ probefn(...) {
   ...+>
 }
 
-@alloc@
-identifier probe.probefn, pdev;
+@alloc depends on probe@
+identifier initfn, pdev;
 expression e, e1, e2;
 position p != serio.p;
 position p1;
 @@
-probefn@p1(struct platform_device *pdev, ...) {
+initfn@p1(struct platform_device *pdev, ...) {
   <+...
   e =
 (
@@ -62,13 +62,68 @@ probefn@p1(struct platform_device *pdev, ...) {
   ...+>
 }
 
-@rem depends on alloc@
+@@
 identifier remove.removefn;
-expression e;
+expression alloc.e;
 @@
 removefn(...) {
   <...
 - kfree(e);
+  ...>
+}
+
+@ak@
+expression alloc.e, e2;
+@@
+e2 = e;
+
+@@
+identifier remove.removefn;
+expression ak.e2;
+@@
+removefn(...) {
+  <...
+- kfree(e2);
+  ...>
+}
+
+@kcalloc depends on probe@
+identifier initfn, pdev;
+expression e;
+expression list es;
+position p;
+@@
+initfn@p(struct platform_device *pdev, ...) {
+  <+...
+- e = kcalloc(es);
++ e = devm_kcalloc(&pdev->dev, es);
+  ...
+?-kfree(e);
+  ...+>
+}
+
+@@
+identifier remove.removefn;
+expression kcalloc.e;
+@@
+removefn(...) {
+  <...
+- kfree(e);
+  ...>
+}
+
+@akc@
+expression kcalloc.e, e2;
+@@
+e2 = e;
+
+@@
+identifier remove.removefn;
+expression akc.e2;
+@@
+removefn(...) {
+  <...
+- kfree(e2);
   ...>
 }
 
