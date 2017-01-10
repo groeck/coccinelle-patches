@@ -43,7 +43,7 @@ findlog_common()
 		;;
 	   "goto6")
 		outmsg="${outmsg}
-- Drop assignments to unused variables"
+- Drop assignments to otherwise unused variables"
 		;;
 	   "goto7")
 		outmsg="${outmsg}
@@ -51,7 +51,7 @@ findlog_common()
 		;;
 	   "goto8")
 		outmsg="${outmsg}
-- replace 'if (e) { return expr; }' with 'if (e) return expr;'"
+- Replace 'if (e) { return expr; }' with 'if (e) return expr;'"
 		;;
 	   "goto9")
 		outmsg="${outmsg}
