@@ -39,17 +39,19 @@ probefn(struct platform_device *pdev) {
 
 @prb depends on probe@
 identifier e.d;
-identifier probe.probefn;
+identifier initfn;
 identifier e.pdev;
 identifier func;
 expression list es;
 position p;
 @@
 
-probefn(struct platform_device *pdev) {
+initfn@p(struct platform_device *pdev, ...) {
+  ...
+  struct device *d = &pdev->dev;
 <+...
-- func@p(&pdev->dev, es)
-+ func(d, es)
+- &pdev->dev
++ d
 ...+> }
 
 @script:python@
