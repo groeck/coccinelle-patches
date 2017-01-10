@@ -86,7 +86,7 @@ initfn@p(struct platform_device *pdev, ...)
 {
 <+...
 - clk = of_clk_get_by_name(np, name);
-+ clk = devm_clk_get_by_name(&pdev->dev, name);
++ clk = devm_clk_get(&pdev->dev, name);
   ...
   when any
 ?-clk_put(clk);
