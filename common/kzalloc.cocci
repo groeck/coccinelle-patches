@@ -30,26 +30,37 @@ identifier probe.p, removefn;
 
 @serio depends on probe@
 identifier initfn;
-expression e, e1, e2;
+expression mp, mp2, e1, e2;
 position p;
 @@
 initfn(...) {
   <+...
-  e = kzalloc@p(e1, e2)
+  mp =
+(
+  kzalloc@p
+|
+  kmalloc@p
+)
+  (e1, e2)
+  ...
+(
+  mp2 = mp;
+|
+)
   ... when any
-  serio_register_port(e);
+  serio_register_port(\(mp\|mp2\));
   ...+>
 }
 
 @alloc depends on probe@
 identifier initfn, pdev;
-expression e, e1, e2;
+expression mp, mp2, e1, e2;
 position p != serio.p;
 position p1;
 @@
 initfn@p1(struct platform_device *pdev, ...) {
   <+...
-  e =
+  mp =
 (
 - kzalloc@p
 |
@@ -58,72 +69,62 @@ initfn@p1(struct platform_device *pdev, ...) {
 - (e1, e2)
 + devm_kzalloc(&pdev->dev, e1, e2)
   ...
-?-kfree(e);
+(
+  mp2 = mp;
+|
+)
+  ... when any
+?-kfree(\(mp\|mp2\));
   ...+>
 }
 
 @@
 identifier remove.removefn;
-expression alloc.e;
+expression alloc.mp, alloc.mp2;
 @@
 removefn(...) {
   <...
-- kfree(e);
-  ...>
-}
-
-@ak@
-expression alloc.e, e2;
-@@
-e2 = e;
-
-@@
-identifier remove.removefn;
-expression ak.e2;
-@@
-removefn(...) {
-  <...
-- kfree(e2);
+- kfree(\(mp\|mp2\));
   ...>
 }
 
 @kcalloc depends on probe@
 identifier initfn, pdev;
-expression e;
+expression mp;
 expression list es;
 position p;
 @@
 initfn@p(struct platform_device *pdev, ...) {
   <+...
-- e = kcalloc(es);
-+ e = devm_kcalloc(&pdev->dev, es);
+- mp = kcalloc(es);
++ mp = devm_kcalloc(&pdev->dev, es);
   ...
-?-kfree(e);
+?-kfree(mp);
   ...+>
 }
 
 @@
 identifier remove.removefn;
-expression kcalloc.e;
+expression kcalloc.mp;
 @@
 removefn(...) {
   <...
-- kfree(e);
+- kfree(mp);
   ...>
 }
 
 @akc@
-expression kcalloc.e, e2;
+expression kcalloc.mp, mp2;
 @@
-e2 = e;
+mp2 = mp;
 
 @@
 identifier remove.removefn;
-expression akc.e2;
+expression akc.mp2;
 @@
 removefn(...) {
   <...
-- kfree(e2);
+- kfree(mp2);
   ...>
 }
 
