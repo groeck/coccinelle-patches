@@ -30,6 +30,7 @@ run ../common/of_iomap
 # Don't bother
 # run watchdog-reboot
 run ../common/mutex_destroy
+run ../common/worker
 run ../common/goto
 # This benefits from a second run
 run ../common/goto
@@ -42,6 +43,9 @@ then
 fi
 
 # The following patches are known to be broken, problematic, or cosmetic
+
+# cpufreq interaction
+rm drivers/watchdog/s3c2410_wdt.c; git checkout drivers/watchdog/s3c2410_wdt.c
 
 # static struct ie6xx_wdt_data should really be allocated
 rm drivers/watchdog/ie6xx_wdt.c; git checkout drivers/watchdog/ie6xx_wdt.c
