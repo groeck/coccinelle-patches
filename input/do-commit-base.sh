@@ -12,7 +12,7 @@ maintainers()
     cc=""
 
     scripts/get_maintainer.pl --no-l --no-rolestats ${file} | \
-	egrep -v "Nothing yet" > ${tmpfile}
+	egrep -v "Dmitry Torokhov|Support Opensource" > ${tmpfile}
 
     while read -r m
     do
@@ -46,12 +46,12 @@ do
 Drop the unnecessary call to platform_set_drvdata()."
 	if [ $p -ne 0 ]
 	then
-		subject="${subject} and other improvements"
+		subject="${subject} and other cleanup"
 		msg="${msg}
 Also replace '&pdev->dev' with 'dev' since dev is locally defined."
 	elif [ ${g4} != 0 ]
 	then
-		subject="${subject} and other improvements"
+		subject="${subject} and other cleanup"
 		msg="${msg}
 Also simplify error return."
 	fi
@@ -62,7 +62,7 @@ Also simplify error return."
 Drop the unnecessary call to platform_set_drvdata()."
 	if [ $p -ne 0 ]
 	then
-		subject="${subject} and other improvements"
+		subject="${subject} and other cleanup"
 		msg="${msg}
 Also replace '&pdev->dev' with 'dev' since dev is locally defined."
 	fi
@@ -75,13 +75,13 @@ Also replace '&pdev->dev' with 'dev' since dev is locally defined."
 	subject="Simplify error return"
 	msg="Simplify error return if the code returns anyway."
     else
-	subject="Various improvements"
+	subject="Various cleanup"
 	msg="Various coccinelle driven transformations as detailed below."
     fi
     git commit -s \
 	-m "Input: $(basename -s .c $a) - ${subject}" \
 	-m "${msg}" \
-	-m "The conversion was done automatically with coccinelle using the
+	-m "This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches" \
