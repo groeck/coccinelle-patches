@@ -136,6 +136,12 @@ findlog_common()
 - Call del_timer() using devm_add_action()"
 		d=1
 		;;
+	   "timer2")
+		outmsg="${outmsg}
+- Call del_timer_sync() using devm_add_action()
+  Introduce helper function since we can not call del_timer_sync() directly"
+		d=1
+		;;
 	   *)
 		;;
 	   esac

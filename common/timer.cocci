@@ -182,11 +182,79 @@ initfn(struct platform_device *pdev, ...)
 + int terr;
   <+...
   setup_timer@p(timer, es);
-+ terr = devm_add_action(&pdev->dev, (void (*)(void *))del_timer_sync, timer);
++ terr = devm_add_action(&pdev->dev, __del_timer_sync_cb, timer);
 + if (terr)
 +        return terr;
   ... when any
 ?-del_timer_sync(timer);
+...+>
+}
+
+// In non-SMP builds, del_timer_sync() is a macro, so we can not specify
+// it as parameter of devm_add_action().
+
+@depends on prbs@
+identifier rs.initfn;
+@@
++ static void __del_timer_sync_cb(void *t)
++ {
++	del_timer_sync(t);
++ }
+  initfn(...) {...}
+
+// Try to do some variable folding.
+// To do that, identify the newly introduced error variable as well
+// as some other variable commonly used as return variable.
+// If both are found, remove terr and replace it with the other
+// variable.
+
+@terr depends on prb || prbs@
+identifier initfn;
+identifier t;
+expression timer;
+expression list es;
+@@
+initfn(...)
+{
+  int t;
+<...
+  setup_timer(timer, es);
+  t = devm_add_action(..., timer);
+...>
+}
+
+@tret depends on prb || prbs@
+identifier rs.initfn;
+identifier ret != terr.t;
+@@
+initfn(...)
+{
+<...
+  ret =
+(
+  watchdog_register_device
+|
+  devm_watchdog_register_device
+|
+  misc_register
+|
+  input_register_device
+)
+  (...);
+...>
+}
+
+@depends on tret && terr@
+identifier rs.initfn;
+identifier terr.t;
+identifier tret.ret;
+@@
+initfn(...)
+{
+- int t;
+<+...
+- t
++ ret
 ...+>
 }
 
@@ -230,7 +298,7 @@ p << r.p;
 print >> f, "%s:timer1:%s" % (p[0].file, p[0].line)
 
 @script:python depends on prbs@
-p << r.p;
+p << rs.p;
 @@
 
-print >> f, "%s:timer1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:timer2:%s" % (p[0].file, p[0].line)
