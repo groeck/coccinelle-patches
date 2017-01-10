@@ -32,7 +32,6 @@ cleanup()
 cleanup drivers/input/keyboard/pxa27x_keypad.c
 cleanup drivers/input/keyboard/sh_keysc.c
 cleanup drivers/input/keyboard/tc3589x-keypad.c
-cleanup drivers/input/misc/gpio_tilt_polled.c
 cleanup drivers/input/misc/sparcspkr.c
 cleanup drivers/input/misc/wistron_btns.c
 cleanup drivers/input/misc/wm831x-on.c
