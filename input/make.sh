@@ -15,7 +15,7 @@ run()
 
 run devm
 run other
-run worker
+run ../common/worker
 run ../common/ioremap_resource
 run ../common/ioremap_resource_assigned
 run ../common/ioremap
