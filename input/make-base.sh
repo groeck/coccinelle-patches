@@ -29,17 +29,24 @@ cleanup()
 
 # The following patches are bad, unrelated, or problematic
 
-cleanup drivers/input/keyboard/pxa27x_keypad.c
-cleanup drivers/input/keyboard/sh_keysc.c
-cleanup drivers/input/keyboard/tc3589x-keypad.c
-cleanup drivers/input/misc/sparcspkr.c
-cleanup drivers/input/misc/wistron_btns.c
-cleanup drivers/input/misc/wm831x-on.c
-cleanup drivers/input/mouse/gpio_mouse.c
-cleanup drivers/input/serio/at32psif.c
-cleanup drivers/input/serio/at32psif.c
-cleanup drivers/input/touchscreen/mainstone-wm97xx.c
-cleanup drivers/input/touchscreen/ucb1400_ts.c
-cleanup drivers/input/touchscreen/wm831x-ts.c
-cleanup drivers/input/touchscreen/zylonite-wm97xx.c
+cleanup drivers/input/touchscreen/st1232.c
 cleanup drivers/input/touchscreen/tps6507x-ts.c
+cleanup drivers/input/touchscreen/zylonite-wm97xx.c
+cleanup drivers/input/touchscreen/wm831x-ts.c
+cleanup drivers/input/touchscreen/tps6507x-ts.c
+cleanup drivers/input/touchscreen/migor_ts.c
+cleanup drivers/input/touchscreen/mainstone-wm97xx.c
+cleanup drivers/input/touchscreen/ektf2127.c
+cleanup drivers/input/touchscreen/eeti_ts.c
+cleanup drivers/input/touchscreen/edt-ft5x06.c
+cleanup drivers/input/touchscreen/chipone_icn8318.c
+cleanup drivers/input/touchscreen/bu21013_ts.c
+cleanup drivers/input/serio/at32psif.c
+cleanup drivers/input/mouse/gpio_mouse.c
+cleanup drivers/input/mouse/cyapa.c
+cleanup drivers/input/misc/wistron_btns.c
+cleanup drivers/input/misc/sparcspkr.c
+cleanup drivers/input/misc/gp2ap002a00f.c
+cleanup drivers/input/keyboard/tc3589x-keypad.c
+cleanup drivers/input/keyboard/sh_keysc.c
+cleanup drivers/input/keyboard/mpr121_touchkey.c
