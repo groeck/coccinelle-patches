@@ -31,6 +31,7 @@ do
     outmsg=""
     x=0
     y=0
+    z=0
     p=0
     g4=0
 
@@ -39,37 +40,40 @@ do
     maintainers $a
     subject=""
     msg=""
+    xmsg=""
     if [ $x -ne 0 ]
     then
-        subject="Drop unnecessary call to platform_set_drvdata"
-	msg="There is no call to platform_get_drvdata() or dev_get_drvdata().
-Drop the unnecessary call to platform_set_drvdata()."
+        xmsg="platform_set_drvdata"
+	xmsg1="platform_get_drvdata"
+    elif [ $y -ne 0 ]
+    then
+        xmsg="dev_set_drvdata"
+	xmsg1="platform_get_drvdata"
+    elif [ $z -ne 0 ]
+    then
+        xmsg="i2c_set_clientdata"
+	xmsg1="i2c_get_clientdata"
+    fi
+    if [ -n "${xmsg}" ]
+    then
+        subject="Drop unnecessary call to ${xmsg}"
+	msg="There is no call to ${xmsg1}() or dev_get_drvdata().
+Drop the unnecessary call to ${xmsg}()."
 	if [ $p -ne 0 ]
 	then
 		subject="${subject} and other cleanup"
 		msg="${msg}
-Also replace '&pdev->dev' with 'dev' since dev is locally defined."
+Also use 'dev' instead of dereferencing it several times."
 	elif [ ${g4} != 0 ]
 	then
 		subject="${subject} and other cleanup"
 		msg="${msg}
 Also simplify error return."
 	fi
-    elif [ $y -ne 0 ]
-    then
-	subject="Drop unnecessary call to dev_set_drvdata"
-	msg="There is no call to platform_get_drvdata() or dev_get_drvdata().
-Drop the unnecessary call to platform_set_drvdata()."
-	if [ $p -ne 0 ]
-	then
-		subject="${subject} and other cleanup"
-		msg="${msg}
-Also replace '&pdev->dev' with 'dev' since dev is locally defined."
-	fi
     elif [ $p -ne 0 ]
     then
-	subject="Replace '&pdev->dev' with 'dev'"
-	msg="'dev' is locally defined, so use it instead of '&pdev->dev'."
+	subject="Use 'dev' instead of dereferencing it"
+	msg="Use 'dev' instead of dereferencing it several times."
     elif [ ${g4} != 0 ]
     then
 	subject="Simplify error return"
