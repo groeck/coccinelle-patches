@@ -15,23 +15,34 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
 
+(
   struct platform_driver p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
+|
+  struct i2c_driver p = {
+    .remove = \(__exit_p(removefn)\|removefn\),
+  };
+)
 
 @e depends on probe@
 identifier probe.probefn;
 identifier d;
 identifier pdev;
+type T;
 @@
 
-probefn(struct platform_device *pdev) {
+probefn(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
   ...
@@ -41,12 +52,11 @@ probefn(struct platform_device *pdev) {
 identifier e.d;
 identifier initfn;
 identifier e.pdev;
-identifier func;
-expression list es;
 position p;
+type e.T;
 @@
 
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
 <+...
