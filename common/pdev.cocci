@@ -36,19 +36,19 @@ identifier probe.p, removefn;
 )
 
 @e depends on probe@
-identifier probe.probefn;
+identifier initfn;
 identifier d;
 identifier pdev;
 type T;
 @@
 
-probefn(T *pdev, ...) {
+initfn(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
   ...
 }
 
-@prb depends on probe@
+@prb@
 identifier e.d;
 identifier initfn;
 identifier e.pdev;
@@ -64,8 +64,52 @@ initfn@p(T *pdev, ...) {
 + d
 ...+> }
 
+@have_dev depends on !prb@
+identifier probe.probefn;
+type T;
+@@
+  probefn(...) {
+  <+...
+  T dev;
+  ...+>
+  }
+
+@count depends on !prb@
+identifier probe.probefn;
+identifier pdev;
+type T;
+@@
+
+  probefn(T *pdev, ...) {
+  ...
+  &pdev->dev
+  <+...
+  &pdev->dev
+  ...+>
+  }
+
+@new depends on !have_dev@
+identifier probe.probefn;
+identifier count.pdev;
+type T;
+position p;
+@@
+
+  probefn@p(T *pdev, ...) {
++ struct device *dev = &pdev->dev;
+<+...
+- &pdev->dev
++ dev
+...+> }
+
 @script:python@
 p << prb.p;
 @@
 
 print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << new.p;
+@@
+
+print >> f, "%s:pdev2:%s" % (p[0].file, p[0].line)
