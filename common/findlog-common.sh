@@ -125,15 +125,20 @@ findlog_common()
 - Drop dev_set_drvdata()"
 		y=1
 		;;
+	   "pdata3")
+		outmsg="${outmsg}
+- Drop i2c_set_clientdata()"
+		z=1
+		;;
 	   "pdev1")
 		outmsg="${outmsg}
-- Replace &pdev->dev with dev if 'struct device *dev' is a declared
-  variable"
+- Use local variable 'struct device *dev' consistently"
 		p=1
 		;;
 	   "pdev2")
 		outmsg="${outmsg}
-- Introduce local variable 'dev', and replace &pdev->dev with dev"
+- Introduce local variable 'struct device *dev' and use it instead of
+  dereferencing it several times"
 		p=2
 		;;
 	   "timer1")
