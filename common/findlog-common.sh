@@ -58,27 +58,27 @@ findlog_common()
 - Drop remove function"
 		;;
 	   "goto10" | "goto11")
-	   	# No message for now
-	   	;;
+		# No message for now
+		;;
 	   "gpio1")
-	   	outmsg="${outmsg}
+		outmsg="${outmsg}
 - Replace gpio_request with devm_gpio_request and gpio_request_one with
   devm_gpio_request_one"
 		d=1
-	   	;;
+		;;
 	    "ioremap1")
-	    	outmsg="${outmsg}
+		outmsg="${outmsg}
 - Replace ioremap with devm_ioremap and ioremap_nocache with
   devm_ioremap_nocache"
 		d=1
-	    	;;
+		;;
 	    "ioremap2")
-	    	outmsg="${outmsg}
+		outmsg="${outmsg}
 - Replace ioremap with devm_ioremap_resource"
 		d=1
 		;;
 	    "ioremap3")
-	    	outmsg="${outmsg}
+		outmsg="${outmsg}
 - Replace request_mem_region or platform_get_resource followed by ioremap
   with devm_ioremap_resource"
 		d=1
@@ -93,7 +93,7 @@ findlog_common()
 		outmsg="${outmsg}
 - Replace kzalloc and kmalloc with devm_kzalloc"
 		d=1
-	    	;;
+		;;
 	   "mutex1")
 		outmsg="${outmsg}
 - Drop unnecessary mutex_destroy() on allocated data"
@@ -129,7 +129,12 @@ findlog_common()
 		outmsg="${outmsg}
 - Replace &pdev->dev with dev if 'struct device *dev' is a declared
   variable"
-  		p=1
+		p=1
+		;;
+	   "pdev2")
+		outmsg="${outmsg}
+- Introduce local variable 'dev', and replace &pdev->dev with dev"
+		p=2
 		;;
 	   "timer1")
 		outmsg="${outmsg}
