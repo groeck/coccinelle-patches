@@ -35,11 +35,22 @@ identifier probe.p, removefn;
   };
 )
 
+// Get type of device.
+// Using it ensures that we don't touch any other data structure
+// which might have a '->dev' object.
+
+@ptype depends on probe@
+type T;
+identifier probe.probefn;
+identifier pdev;
+@@
+probefn(T *pdev, ...) { ... }
+
 @e depends on probe@
 identifier initfn;
 identifier d;
 identifier pdev;
-type T;
+type ptype.T;
 @@
 
 initfn(T *pdev, ...) {
@@ -53,7 +64,7 @@ identifier e.d;
 identifier initfn;
 identifier e.pdev;
 position p;
-type e.T;
+type ptype.T;
 @@
 
 initfn@p(T *pdev, ...) {
@@ -64,38 +75,51 @@ initfn@p(T *pdev, ...) {
 + d
 ...+> }
 
-@have_dev depends on !prb@
-identifier probe.probefn;
-type T;
+// Make sure that a variable named 'dev' does not already exist.
+
+@script:python expected@
+dev;
 @@
-  probefn(...) {
-  <+...
-  T dev;
-  ...+>
+coccinelle.dev = 'dev'
+
+@have_dev depends on !prb@
+identifier initfn != e.initfn;
+identifier expected.dev;
+position p;
+@@
+  initfn@p(...)
+  {
+  ... when any
+  dev
+  ... when any
   }
+
+// Only replace &pdev->dev if it is used at least twice
+// and if no variable with the same name exists.
 
 @count depends on !prb@
-identifier probe.probefn;
+identifier initfn;
 identifier pdev;
-type T;
+type ptype.T;
+position p != have_dev.p;
 @@
 
-  probefn(T *pdev, ...) {
-  ...
+  initfn@p(T *pdev, ...) {
+  ... when any
   &pdev->dev
   <+...
   &pdev->dev
   ...+>
   }
 
-@new depends on !have_dev@
-identifier probe.probefn;
+@new@
+identifier count.initfn;
 identifier count.pdev;
-type T;
+type ptype.T;
 position p;
 @@
 
-  probefn@p(T *pdev, ...) {
+  initfn@p(T *pdev, ...) {
 + struct device *dev = &pdev->dev;
 <+...
 - &pdev->dev
