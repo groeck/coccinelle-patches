@@ -15,15 +15,25 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+      .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
 
+(
   struct platform_driver p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
+|
+  struct i2c_driver p = {
+    .remove = \(__exit_p(removefn)\|removefn\),
+  };
+)
 
 @used depends on probe@
 identifier fn != probe.probefn;
@@ -35,6 +45,8 @@ fn(...) {
 platform_get_drvdata(...)
 |
 dev_get_drvdata(...)
+|
+i2c_get_clientdata(...)
 )
  ...+>
 }
@@ -59,6 +71,16 @@ probefn(...) {
 - dev_set_drvdata@p(...);
 ...> }
 
+@r3 depends on !used@
+identifier probe.probefn;
+position p;
+@@
+
+probefn(...) {
+<...
+- i2c_set_clientdata@p(...);
+...> }
+
 @script:python@
 p << r1.p;
 @@
@@ -70,3 +92,9 @@ p << r2.p;
 @@
 
 print >> f, "%s:pdata2:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << r3.p;
+@@
+
+print >> f, "%s:pdata3:%s" % (p[0].file, p[0].line)
