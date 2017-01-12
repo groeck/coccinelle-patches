@@ -20,21 +20,28 @@ position pos;
   struct i2c_driver p = {
     .probe = probefn@pos,
   };
+|
+  struct spi_driver p = {
+    .probe = probefn@pos,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 position pos;
 @@
+
+  struct
 (
-  struct platform_driver p@pos = {
-    .remove = \(__exit_p(removefn)\|removefn\),
-  };
+  platform_driver
 |
-  struct i2c_driver p@pos = {
+  i2c_driver
+|
+  spi_driver
+)
+  p@pos = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
-)
 
 @unneeded_label depends on probe@
 identifier fn;
