@@ -15,16 +15,41 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
-
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
+// Get type of device.
+// Using it ensures that we don't touch any other data structure
+// which might have a '->dev' object.
+
+@ptype depends on probe@
+type T;
+identifier probe.probefn;
+identifier pdev;
+@@
+probefn(T *pdev, ...) { ... }
 
 @r depends on probe@
 identifier initfn;
@@ -49,9 +74,10 @@ identifier r.initfn, pdev;
 expression list es;
 position r.p;
 expression irq;
+type ptype.T;
 @@
 
-initfn(struct platform_device *pdev, ...)
+initfn(T *pdev, ...)
 {
   <+...
 (
