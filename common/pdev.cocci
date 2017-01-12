@@ -19,6 +19,10 @@ declarer name module_platform_driver_probe;
   struct i2c_driver p = {
     .probe = probefn,
   };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 // Get type of device.
@@ -37,19 +41,22 @@ identifier initfn;
 identifier d;
 identifier pdev;
 type ptype.T;
+position p;
 @@
 
-initfn(T *pdev, ...) {
+initfn@p(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
   ...
 }
 
+// Use existing 'struct device *' variable for transformations if available
+
 @prb@
 identifier e.d;
 identifier initfn;
 identifier e.pdev;
-position p;
+position e.p;
 type ptype.T;
 @@
 
@@ -61,65 +68,93 @@ initfn@p(T *pdev, ...) {
 + d
 ...+> }
 
-// Make sure that a variable named 'dev' does not already exist.
+// Otherwise make sure that a variable named 'dev' does not already exist.
 
 @script:python expected@
 dev;
 @@
 coccinelle.dev = 'dev'
 
-@have_dev depends on !prb@
-identifier initfn != e.initfn;
+@have_dev depends on probe@
+identifier initfn;
 identifier expected.dev;
+identifier pdev;
+type ptype.T;
 position p;
 @@
-  initfn@p(...)
+
+  initfn@p(T *pdev, ...)
   {
   ... when any
   dev
-  ... when any
+  ...
   }
 
-// Only replace &pdev->dev if it is used at least twice
-// and if no variable with the same name exists.
+// Idea is to only replace &pdev->dev if it is used at least twice
+// and if no variable with the same name exists. The rule below doesn't
+// seem to work, though.
+// Q: How do we determine that &pdev->dev exists at least twice ?
 
+/*
 @count depends on !prb@
-identifier initfn;
+identifier initfn != { prb.initfn, have_dev.initfn };
 identifier pdev;
 type ptype.T;
-position p != have_dev.p;
+position p;
 @@
 
-  initfn@p(T *pdev, ...) {
-  ... when any
+initfn@p(T *pdev, ...) {
+  ...
   &pdev->dev
   <+...
   &pdev->dev
   ...+>
-  }
+}
+*/
 
-@new@
-identifier count.initfn;
-identifier count.pdev;
+// The following rule hangs on:
+//	drivers/input/keyboard/adp5588-keys.c
+//	drivers/input/keyboard/adp5589-keys.c
+//	drivers/input/touchscreen/wdt87xx_i2c.c
+
+// transform ...
+
+@new depends on probe && !have_dev && !e@
+identifier initfn;
+identifier pdev;
+type ptype.T;
+position p;
+@@
+
+  initfn@p(T *pdev, ...) {
+  <+...
+- &pdev->dev
++ dev
+  ...+>
+}
+
+// ... and introduce new variable if needed
+
+@newdecl depends on new@
+identifier new.initfn;
+identifier pdev;
 type ptype.T;
 position p;
 @@
 
   initfn@p(T *pdev, ...) {
 + struct device *dev = &pdev->dev;
-<+...
-- &pdev->dev
-+ dev
-...+> }
+  ...
+}
 
-@script:python@
-p << prb.p;
+@script:python depends on prb@
+p << e.p;
 @@
 
 print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
 
 @script:python@
-p << new.p;
+p << newdecl.p;
 @@
 
 print >> f, "%s:pdev2:%s" % (p[0].file, p[0].line)
