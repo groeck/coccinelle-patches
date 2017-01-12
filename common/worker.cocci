@@ -15,22 +15,50 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
-
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
+
+// Get type of device.
+// Using it ensures that we don't touch any other data structure
+// which might have a '->dev' object.
+
+@ptype depends on probe@
+type T;
+identifier probe.probefn;
+identifier pdev;
+@@
+probefn(T *pdev, ...) { ... }
 
 @worker depends on probe@
 identifier initfn;
 position p;
 expression w;
+type ptype.T;
+identifier pdev;
 @@
-initfn(...)
+initfn(T *pdev, ...)
 {
 <+...
 INIT_DELAYED_WORK@p(w,...);
@@ -52,14 +80,14 @@ s = devm_add_action_or_reset(..., w);
 }
 
 @wc depends on worker@
-identifier remove.removefn, probe.probefn;
+identifier remove.removefn, worker.initfn;
 expression worker.w;
 @@
 
 (
 removefn
 |
-probefn
+initfn
 )
   (...){
   <+...
@@ -71,11 +99,11 @@ probefn
 identifier worker.initfn;
 expression w, e;
 position worker.p;
-statement S;
-identifier pdev; 
+identifier pdev;
+type ptype.T;
 @@
 
-initfn(struct platform_device *pdev)
+initfn(T *pdev, ...)
 {
 + int wer;
   <+...
@@ -124,6 +152,24 @@ initfn(...)
   misc_register
 |
   input_register_device
+|
+  devm_extcon_dev_register
+|
+  request_threaded_irq
+|
+  devm_request_threaded_irq
+|
+  request_irq
+|
+  devm_request_irq
+|
+  clk_prepare_enable
+|
+  PTR_ERR
+|
+  devm_regulator_bulk_get
+|
+  register_netdev
 )
   (...);
 ...>
