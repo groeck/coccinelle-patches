@@ -15,28 +15,50 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
 
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-// unresolved:
-// d may be reassigned:
-// d2 = d;
-// ...
-// input_unregister_device(d2);
+// Get type of device.
+// Using it ensures that we don't touch any other data structure
+// which might have a '->dev' object.
+
+@ptype depends on probe@
+type T;
+identifier probe.probefn;
+identifier pdev;
+@@
+probefn(T *pdev, ...) { ... }
 
 @a depends on probe@
 identifier initfn, pdev;
 expression d, d2;
 position p;
+type ptype.T;
 @@
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   <+...
 - d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
@@ -44,22 +66,27 @@ initfn@p(struct platform_device *pdev, ...) {
   d2 = d;
   ... when any
 ?-input_unregister_device(\(d\|d2\));
+  ...
+?-\(d\|d2\) = NULL;
   ... when any
 ?-input_free_device(\(d\|d2\));
   ...+>
 }
 
-@a2 depends on probe@
+@a2 depends on probe && !a@
 identifier initfn, pdev;
 expression d;
 position p;
+type ptype.T;
 @@
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   <+...
 - d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
   ... when any
 ?-input_unregister_device(d);
+  ...
+?-d = NULL;
   ... when any
 ?-input_free_device(d);
   ...+>
@@ -78,8 +105,9 @@ removefn(...) {
 identifier initfn, pdev;
 expression d, d2;
 position p;
+type ptype.T;
 @@
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   <+...
 - d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
@@ -96,8 +124,9 @@ initfn@p(struct platform_device *pdev, ...) {
 identifier initfn, pdev;
 expression d;
 position p;
+type ptype.T;
 @@
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   <+...
 - d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
