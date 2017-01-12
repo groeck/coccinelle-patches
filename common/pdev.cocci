@@ -21,20 +21,6 @@ declarer name module_platform_driver_probe;
   };
 )
 
-@remove@
-identifier probe.p, removefn;
-@@
-
-(
-  struct platform_driver p = {
-    .remove = \(__exit_p(removefn)\|removefn\),
-  };
-|
-  struct i2c_driver p = {
-    .remove = \(__exit_p(removefn)\|removefn\),
-  };
-)
-
 // Get type of device.
 // Using it ensures that we don't touch any other data structure
 // which might have a '->dev' object.
