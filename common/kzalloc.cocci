@@ -15,15 +15,41 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
-
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
+
+// Get type of device.
+// Using it ensures that we don't touch any other data structure
+// which might have a '->dev' object.
+
+@ptype depends on probe@
+type T;
+identifier probe.probefn;
+identifier pdev;
+@@
+probefn(T *pdev, ...) { ... }
 
 // Note: devm_kzalloc() must not be called for parameters
 // to serio_register_port().
@@ -57,8 +83,9 @@ identifier initfn, pdev;
 expression mp, mp2, e1, e2;
 position p != serio.p;
 position p1;
+type ptype.T;
 @@
-initfn@p1(struct platform_device *pdev, ...) {
+initfn@p1(T *pdev, ...) {
   <+...
   mp =
 (
@@ -93,8 +120,9 @@ identifier initfn, pdev;
 expression mp;
 expression list es;
 position p;
+type ptype.T;
 @@
-initfn@p(struct platform_device *pdev, ...) {
+initfn@p(T *pdev, ...) {
   <+...
 - mp = kcalloc(es);
 + mp = devm_kcalloc(&pdev->dev, es);
@@ -133,3 +161,9 @@ p << alloc.p1;
 @@
 
 print >> f, "%s:kzalloc1:%s" % (p[0].file, p[0].line)
+
+@script:python@
+p << kcalloc.p;
+@@
+
+print >> f, "%s:kzalloc2:%s" % (p[0].file, p[0].line)
