@@ -101,6 +101,7 @@ expression w, e;
 position worker.p;
 identifier pdev;
 type ptype.T;
+fresh identifier cb = initfn ## "_work_cb";
 @@
 
 initfn(T *pdev, ...)
@@ -108,13 +109,24 @@ initfn(T *pdev, ...)
 + int wer;
   <+...
   INIT_DELAYED_WORK@p(w, e);
-+ wer = devm_add_action_or_reset(&pdev->dev, (void (*)(void *))cancel_delayed_work_sync, w);
++ wer = devm_add_action_or_reset(&pdev->dev, cb, w);
 + if (wer)
 +        return wer;
   ... when any
 ?-cancel_delayed_work_sync(w);
 ...+>
 }
+
+// Add callback function
+
+@worker_cb depends on worker@
+identifier worker.initfn;
+identifier worker_probe.cb;
+@@
+
++ static void cb(void *w)
++ { cancel_delayed_work_sync(w); }
+  initfn(...) { ... }
 
 // Try to do some variable folding.
 // To do that, identify the newly introduced error variable as well
@@ -179,13 +191,14 @@ initfn(...)
 identifier worker.initfn;
 identifier werr.err;
 identifier wret.ret;
+expression E;
 @@
 initfn(...)
 {
 - int err;
 <+...
-- err
-+ ret
+- err = E; if (err) return err;
++ ret = E; if (ret) return ret;
 ...+>
 }
 
