@@ -15,13 +15,29 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
 
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
@@ -147,6 +163,7 @@ identifier probe.probefn, pdev, ret;
 expression clk, e2;
 statement S;
 position p;
+fresh identifier cb = probefn ## "_clk_put_cb";
 @@
 
 probefn(struct platform_device *pdev, ...)
@@ -156,7 +173,7 @@ probefn(struct platform_device *pdev, ...)
 <+...
   clk = clk_get@p(NULL, e2);
   if (IS_ERR(clk)) S
-+ ret = devm_add_action_or_reset(&pdev->dev, (void(*)(void *))clk_put, e2);
++ ret = devm_add_action_or_reset(&pdev->dev, cb, e2);
 + if (ret)
 +   return ret;
   ...
@@ -164,6 +181,15 @@ probefn(struct platform_device *pdev, ...)
 ?-clk_put(clk);
 ...+>
 }
+
+@depends on prb2@
+identifier probe.probefn;
+identifier prb2.cb;
+@@
+
++ static void cb(void *w)
++ { clk_put(w); }
+  probefn(...) { ... }
 
 @rem2 depends on prb2@
 identifier remove.removefn;
