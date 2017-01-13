@@ -43,7 +43,7 @@ position pos;
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-@unneeded_label depends on probe@
+@unneeded_label depends on probe exists@
 identifier fn;
 position p1;
 identifier l1,l2;
@@ -64,7 +64,7 @@ statement S;
 @@
 
 fn(...) {
-<+...
+<...
 - goto l1;
 + goto l2;
   ...
@@ -73,7 +73,7 @@ fn(...) {
  l:@p1
  ...>
  l2:@p
-...+> }
+...> }
 
 @needed_return exists@
 identifier initfn;
