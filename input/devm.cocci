@@ -52,14 +52,27 @@ identifier pdev;
 @@
 probefn(T *pdev, ...) { ... }
 
-@a depends on probe@
+@a_needed depends on probe exists@
+identifier initfn, pdev;
+expression d, d2;
+type ptype.T;
+@@
+initfn(T *pdev, ...) {
+  <+...
+  d = input_allocate_device()
+  ... when any
+  d2 = d;
+  ...+>
+}
+
+@a depends on a_needed@
 identifier initfn, pdev;
 expression d, d2;
 position p;
 type ptype.T;
 @@
 initfn@p(T *pdev, ...) {
-  <+...
+  <...
 - d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
   ... when any
@@ -70,17 +83,28 @@ initfn@p(T *pdev, ...) {
 ?-\(d\|d2\) = NULL;
   ... when any
 ?-input_free_device(\(d\|d2\));
+  ...>
+}
+
+@a2_needed depends on probe exists@
+identifier initfn, pdev;
+expression d;
+type ptype.T;
+@@
+initfn(T *pdev, ...) {
+  <+...
+  d = input_allocate_device()
   ...+>
 }
 
-@a2 depends on probe && !a@
+@a2 depends on !a_needed && a2_needed@
 identifier initfn, pdev;
 expression d;
 position p;
 type ptype.T;
 @@
 initfn@p(T *pdev, ...) {
-  <+...
+  <...
 - d = input_allocate_device()
 + d = devm_input_allocate_device(&pdev->dev)
   ... when any
@@ -89,10 +113,10 @@ initfn@p(T *pdev, ...) {
 ?-d = NULL;
   ... when any
 ?-input_free_device(d);
-  ...+>
+  ...>
 }
 
-@rema depends on a || a2@
+@rema depends on a_needed || a2_needed@
 identifier remove.removefn;
 @@
 removefn(...) {
@@ -101,14 +125,27 @@ removefn(...) {
   ...>
 }
 
-@ap depends on probe@
+@ap_needed exists@
+identifier initfn, pdev;
+expression d, d2;
+type ptype.T;
+@@
+initfn(T *pdev, ...) {
+  <+...
+  d = input_allocate_polled_device()
+  ... when any
+  d2 = d;
+  ...+>
+}
+
+@ap depends on probe && ap_needed@
 identifier initfn, pdev;
 expression d, d2;
 position p;
 type ptype.T;
 @@
 initfn@p(T *pdev, ...) {
-  <+...
+  <...
 - d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
   ... when any
@@ -117,27 +154,38 @@ initfn@p(T *pdev, ...) {
 ?-input_unregister_polled_device(\(d\|d2\));
   ... when any
 ?-input_free_polled_device(\(d\|d2\));
+  ...>
+}
+
+@ap2_needed depends on probe exists@
+identifier initfn, pdev;
+expression d;
+type ptype.T;
+@@
+initfn(T *pdev, ...) {
+  <+...
+  d = input_allocate_polled_device()
   ...+>
 }
 
-@ap2 depends on probe@
+@ap2 depends on !ap_needed && ap2_needed@
 identifier initfn, pdev;
 expression d;
 position p;
 type ptype.T;
 @@
 initfn@p(T *pdev, ...) {
-  <+...
+  <...
 - d = input_allocate_polled_device()
 + d = devm_input_allocate_polled_device(&pdev->dev)
   ... when any
 ?-input_unregister_polled_device(d);
   ... when any
 ?-input_free_polled_device(d);
-  ...+>
+  ...>
 }
 
-@remap depends on ap || ap2@
+@remap depends on ap_needed || ap2_needed@
 identifier remove.removefn;
 @@
 removefn(...) {
