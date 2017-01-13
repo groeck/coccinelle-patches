@@ -51,7 +51,7 @@ identifier pdev;
 @@
 probefn(T *pdev, ...) { ... }
 
-// Note: devm_kzalloc() must not be called for parameters
+// Note: devm_k{zm}alloc() must not be called for parameters
 // to serio_register_port().
 
 @serio depends on probe@
@@ -89,12 +89,12 @@ initfn@p1(T *pdev, ...) {
   <+...
   mp =
 (
-- kzalloc@p
-|
-- kmalloc@p
-)
-- (e1, e2)
+- kzalloc@p(e1, e2)
 + devm_kzalloc(&pdev->dev, e1, e2)
+|
+- kmalloc@p(e1, e2)
++ devm_kmalloc(&pdev->dev, e1, e2)
+)
   ...
 (
   mp2 = mp;
