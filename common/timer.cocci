@@ -15,13 +15,29 @@ declarer name module_platform_driver_probe;
   struct platform_driver p = {
     .probe = probefn,
   };
+|
+  struct i2c_driver p = {
+    .probe = probefn,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn,
+  };
 )
 
 @remove@
 identifier probe.p, removefn;
 @@
 
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
@@ -75,6 +91,7 @@ identifier r.initfn, pdev;
 expression timer;
 expression list es;
 position r.p;
+fresh identifier cb = initfn ## "_del_timer_cb";
 @@
 
 initfn(struct platform_device *pdev, ...)
@@ -82,13 +99,23 @@ initfn(struct platform_device *pdev, ...)
 + int terr;
   <+...
   setup_timer@p(timer, es);
-+ terr = devm_add_action(&pdev->dev, (void (*)(void *))del_timer, timer);
++ terr = devm_add_action(&pdev->dev, cb, timer);
 + if (terr)
 +        return terr;
   ... when any
 ?-del_timer(timer);
 ...+>
 }
+
+@depends on prb@
+identifier r.initfn;
+identifier prb.cb;
+@@
++ static void cb(void *t)
++ {
++	del_timer(t);
++ }
+  initfn(...) {...}
 
 @rem@
 identifier remove.removefn, probe.probefn;
@@ -175,6 +202,7 @@ identifier rs.initfn, pdev;
 expression timer;
 expression list es;
 position rs.p;
+fresh identifier cb = initfn ## "_timer_sync_cb";
 @@
 
 initfn(struct platform_device *pdev, ...)
@@ -182,7 +210,7 @@ initfn(struct platform_device *pdev, ...)
 + int terr;
   <+...
   setup_timer@p(timer, es);
-+ terr = devm_add_action(&pdev->dev, __del_timer_sync_cb, timer);
++ terr = devm_add_action(&pdev->dev, cb, timer);
 + if (terr)
 +        return terr;
   ... when any
@@ -190,13 +218,11 @@ initfn(struct platform_device *pdev, ...)
 ...+>
 }
 
-// In non-SMP builds, del_timer_sync() is a macro, so we can not specify
-// it as parameter of devm_add_action().
-
 @depends on prbs@
 identifier rs.initfn;
+identifier prbs.cb;
 @@
-+ static void __del_timer_sync_cb(void *t)
++ static void cb(void *t)
 + {
 +	del_timer_sync(t);
 + }
@@ -239,6 +265,8 @@ initfn(...)
   misc_register
 |
   input_register_device
+|
+  request_irq
 )
   (...);
 ...>
@@ -248,13 +276,14 @@ initfn(...)
 identifier rs.initfn;
 identifier terr.t;
 identifier tret.ret;
+expression list es;
 @@
 initfn(...)
 {
 - int t;
 <+...
-- t
-+ ret
+- t = devm_add_action(es); if (t) return t;
++ ret = devm_add_action(es); if (ret) return ret;
 ...+>
 }
 
