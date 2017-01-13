@@ -32,7 +32,7 @@ findlog_common()
 		outmsg="${outmsg}
 - Replace 'goto l; ... l: return e;' with 'return e;'"
 		;;
-	   "goto3" | "goto5")
+	   "goto3")
 		outmsg="${outmsg}
 - Replace 'val = e; return val;' with 'return e;'"
 		;;
@@ -41,23 +41,23 @@ findlog_common()
 - Replace 'if (e) return e; return 0;' with 'return e;'"
 		g4=1
 		;;
-	   "goto6")
+	   "cleanup1")
 		outmsg="${outmsg}
 - Drop assignments to otherwise unused variables"
 		;;
-	   "goto7")
+	   "cleanup2")
 		outmsg="${outmsg}
 - Drop unused variables"
 		;;
-	   "goto8")
+	   "cleanup3")
 		outmsg="${outmsg}
 - Replace 'if (e) { return expr; }' with 'if (e) return expr;'"
 		;;
-	   "goto9")
+	   "cleanup4")
 		outmsg="${outmsg}
 - Drop remove function"
 		;;
-	   "goto10" | "goto11")
+	   "cleanup5" | "cleanup6")
 		# No message for now
 		;;
 	   "gpio1")
