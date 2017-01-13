@@ -36,7 +36,7 @@ identifier pdev;
 @@
 probefn(T *pdev, ...) { ... }
 
-@e depends on probe@
+@e depends on probe exists@
 identifier initfn;
 identifier d;
 identifier pdev;
@@ -47,7 +47,7 @@ position p;
 initfn@p(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
-  ...
+  ... when any
 }
 
 // Use existing 'struct device *' variable for transformations if available
@@ -75,7 +75,7 @@ dev;
 @@
 coccinelle.dev = 'dev'
 
-@have_dev depends on probe@
+@have_dev depends on probe exists@
 identifier initfn;
 identifier expected.dev;
 identifier pdev;
@@ -85,9 +85,9 @@ position p;
 
   initfn@p(T *pdev, ...)
   {
-  ... when any
-  dev
   ...
+  dev
+  ... when any
   }
 
 // Idea is to only replace &pdev->dev if it is used at least twice
@@ -95,9 +95,8 @@ position p;
 // seem to work, though.
 // Q: How do we determine that &pdev->dev exists at least twice ?
 
-/*
-@count depends on !prb@
-identifier initfn != { prb.initfn, have_dev.initfn };
+@count exists@
+identifier initfn;
 identifier pdev;
 type ptype.T;
 position p;
@@ -106,45 +105,24 @@ position p;
 initfn@p(T *pdev, ...) {
   ...
   &pdev->dev
-  <+...
+  ... when any
   &pdev->dev
-  ...+>
+  ... when any
 }
-*/
 
-// The following rule hangs on:
-//	drivers/input/keyboard/adp5588-keys.c
-//	drivers/input/keyboard/adp5589-keys.c
-//	drivers/input/touchscreen/wdt87xx_i2c.c
-
-// transform ...
-
-@new depends on probe && !have_dev && !e@
+@new depends on probe && !have_dev && !e && count@
 identifier initfn;
 identifier pdev;
 type ptype.T;
-position p;
-@@
-
-  initfn@p(T *pdev, ...) {
-  <+...
-- &pdev->dev
-+ dev
-  ...+>
-}
-
-// ... and introduce new variable if needed
-
-@newdecl depends on new@
-identifier new.initfn;
-identifier pdev;
-type ptype.T;
-position p;
+position count.p;
 @@
 
   initfn@p(T *pdev, ...) {
 + struct device *dev = &pdev->dev;
-  ...
+  <...
+- &pdev->dev
++ dev
+  ...>
 }
 
 @script:python depends on prb@
@@ -153,8 +131,8 @@ p << e.p;
 
 print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
 
-@script:python@
-p << newdecl.p;
+@script:python depends on new@
+p << count.p;
 @@
 
 print >> f, "%s:pdev2:%s" % (p[0].file, p[0].line)
