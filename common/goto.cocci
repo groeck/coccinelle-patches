@@ -58,7 +58,7 @@ fn(...) {
  l2:@p
 ...> }
 
-@needed_return exists@
+@needed_return depends on probe exists@
 identifier initfn;
 identifier l;
 position p;
@@ -71,7 +71,7 @@ initfn(...) {
 l: return@p e;
 }
 
-@direct_return depends on probe@
+@dr_needed depends on probe exists@
 identifier initfn;
 identifier l1;
 expression e;
@@ -80,13 +80,27 @@ position p != needed_return.p;
 
 initfn(...) {
 <+...
+  goto l1;
+  ...
+  l1: return@p e;
+...+> }
+
+@direct_return depends on probe && dr_needed@
+identifier initfn;
+identifier l1;
+expression e;
+position p != needed_return.p;
+@@
+
+initfn(...) {
+<...
 - goto l1;
 + return e;
   ...
 - l1: return@p e;
-...+> }
+...> }
 
-@direct_return2 depends on probe@
+@dr2_needed depends on probe exists@
 identifier initfn;
 identifier l1;
 expression e;
@@ -94,39 +108,75 @@ expression e;
 
 initfn(...) {
 <+...
+  goto l1;
+  ...
+  l1: return e;
+...+> }
+
+@direct_return2 depends on probe && dr2_needed@
+identifier initfn;
+identifier l1;
+expression e;
+@@
+
+initfn(...) {
+<...
 - goto l1;
 + return e;
    ...
 - l1:
   return e;
-...+> }
+...> }
 
-@merge_return depends on probe@
+@mr_needed depends on probe exists@
 identifier initfn;
 expression ret, e;
 @@
 
 initfn(...) {
 <+...
+  ret = e;
+  return ret;
+...+> }
+
+@merge_return depends on probe && mr_needed@
+identifier initfn;
+expression ret, e;
+@@
+
+initfn(...) {
+<...
 - ret = e;
 - return ret;
 + return e;
-...+> }
+...> }
 
-@extra_return depends on probe@
+@er_needed depends on probe exists@
 identifier initfn;
 expression e, e1;
 @@
 
 initfn(...) {
 <+...
+  if (\(e\|e<0\|e>0\|e!=e1\))
+      return e;
+  return \(0\|e\);
+...+> }
+
+@extra_return depends on probe && er_needed@
+identifier initfn;
+expression e, e1;
+@@
+
+initfn(...) {
+<...
 - if (\(e\|e<0\|e>0\|e!=e1\))
 -     return e;
 - return \(0\|e\);
 + return e;
-...+> }
+...> }
 
-@extra_return2 depends on probe@
+@er2_needed depends on probe exists@
 identifier initfn;
 identifier f;
 expression list el;
@@ -135,10 +185,23 @@ expression e;
 
 initfn(...) {
 <+...
+  e = f(el);
+  return e;
+...+> }
+
+@extra_return2 depends on probe && er2_needed@
+identifier initfn;
+identifier f;
+expression list el;
+expression e;
+@@
+
+initfn(...) {
+<...
 - e = f(el);
 - return e;
 + return f(el);
-...+> }
+...> }
 
 @e@
 identifier i;
