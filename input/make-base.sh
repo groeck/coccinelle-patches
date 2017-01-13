@@ -29,24 +29,34 @@ cleanup()
 
 # The following patches are bad, unrelated, or problematic
 
-cleanup drivers/input/touchscreen/st1232.c
 cleanup drivers/input/touchscreen/tps6507x-ts.c
 cleanup drivers/input/touchscreen/zylonite-wm97xx.c
-cleanup drivers/input/touchscreen/wm831x-ts.c
-cleanup drivers/input/touchscreen/tps6507x-ts.c
-cleanup drivers/input/touchscreen/migor_ts.c
 cleanup drivers/input/touchscreen/mainstone-wm97xx.c
 cleanup drivers/input/touchscreen/ektf2127.c
-cleanup drivers/input/touchscreen/eeti_ts.c
-cleanup drivers/input/touchscreen/edt-ft5x06.c
 cleanup drivers/input/touchscreen/chipone_icn8318.c
-cleanup drivers/input/touchscreen/bu21013_ts.c
-cleanup drivers/input/serio/at32psif.c
-cleanup drivers/input/mouse/gpio_mouse.c
 cleanup drivers/input/mouse/cyapa.c
 cleanup drivers/input/misc/wistron_btns.c
 cleanup drivers/input/misc/sparcspkr.c
-cleanup drivers/input/misc/gp2ap002a00f.c
-cleanup drivers/input/keyboard/tc3589x-keypad.c
-cleanup drivers/input/keyboard/sh_keysc.c
-cleanup drivers/input/keyboard/mpr121_touchkey.c
+
+# The following patches are duplicates with the full set of changes
+
+cleanup drivers/input/joystick/as5011.c
+cleanup drivers/input/keyboard/adp5588-keys.c
+cleanup drivers/input/keyboard/bcm-keypad.c
+cleanup drivers/input/keyboard/davinci_keyscan.c
+cleanup drivers/input/keyboard/mcs_touchkey.c
+cleanup drivers/input/keyboard/pxa930_rotary.c
+cleanup drivers/input/keyboard/qt1070.c
+cleanup drivers/input/keyboard/w90p910_keypad.c
+cleanup drivers/input/misc/da9052_onkey.c
+cleanup drivers/input/misc/da9055_onkey.c
+cleanup drivers/input/misc/mc13783-pwrbutton.c
+cleanup drivers/input/misc/wm831x-on.c
+cleanup drivers/input/mouse/pxa930_trkball.c
+cleanup drivers/input/touchscreen/cy8ctmg110_ts.c
+cleanup drivers/input/touchscreen/da9052_tsi.c
+cleanup drivers/input/touchscreen/ili210x.c
+cleanup drivers/input/touchscreen/mc13783_ts.c
+cleanup drivers/input/touchscreen/s3c2410_ts.c
+cleanup drivers/input/touchscreen/ucb1400_ts.c
+cleanup drivers/input/touchscreen/wacom_i2c.c
