@@ -36,6 +36,7 @@ run ../common/goto
 run ../common/goto
 run ../common/pdata
 run ../common/pdev
+run ../common/cleanup
 
 if [ -n "${noclean}" ]
 then
