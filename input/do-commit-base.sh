@@ -29,9 +29,10 @@ do
     git add $a
 
     outmsg=""
-    x=0
-    y=0
-    z=0
+    x1=0
+    x2=0
+    x3=0
+    x4=0
     p=0
     g4=0
 
@@ -41,22 +42,26 @@ do
     subject=""
     msg=""
     xmsg=""
-    if [ $x -ne 0 ]
+    if [ $x1 -ne 0 ]
     then
-        xmsg="platform_set_drvdata"
+	xmsg="platform_set_drvdata"
 	xmsg1="platform_get_drvdata"
-    elif [ $y -ne 0 ]
+    elif [ $x2 -ne 0 ]
     then
-        xmsg="dev_set_drvdata"
+	xmsg="dev_set_drvdata"
 	xmsg1="platform_get_drvdata"
-    elif [ $z -ne 0 ]
+    elif [ $x3 -ne 0 ]
     then
-        xmsg="i2c_set_clientdata"
+	xmsg="i2c_set_clientdata"
 	xmsg1="i2c_get_clientdata"
+    elif [ $x4 -ne 0 ]
+    then
+	xmsg="spi_set_clientdata"
+	xmsg1="spi_get_clientdata"
     fi
     if [ -n "${xmsg}" ]
     then
-        subject="Drop unnecessary call to ${xmsg}"
+	subject="Drop unnecessary call to ${xmsg}"
 	msg="There is no call to ${xmsg1}() or dev_get_drvdata().
 Drop the unnecessary call to ${xmsg}()."
 	if [ $p -ne 0 ]

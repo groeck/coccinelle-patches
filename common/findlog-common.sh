@@ -118,17 +118,22 @@ findlog_common()
 	   "pdata1")
 		outmsg="${outmsg}
 - Drop platform_set_drvdata()"
-		x=1
+		x1=1
 		;;
 	   "pdata2")
 		outmsg="${outmsg}
 - Drop dev_set_drvdata()"
-		y=1
+		x2=1
 		;;
 	   "pdata3")
 		outmsg="${outmsg}
 - Drop i2c_set_clientdata()"
-		z=1
+		x3=1
+		;;
+	   "pdata4")
+		outmsg="${outmsg}
+- Drop spi_set_clientdata()"
+		x4=1
 		;;
 	   "pdev1")
 		outmsg="${outmsg}
