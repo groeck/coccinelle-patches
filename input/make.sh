@@ -34,6 +34,7 @@ run ../common/goto
 run ../common/pdata
 run ../common/pdev
 run ../common/goto
+run ../common/cleanup
 
 if [ -n "${noclean}" ]
 then
@@ -48,40 +49,35 @@ cleanup()
 # The following patches are known to be broken, problematic, or cosmetic
 
 # cosmetic
-cleanup drivers/input/keyboard/adc-keys.c
-cleanup drivers/input/keyboard/bcm-keypad.c
-cleanup drivers/input/keyboard/pxa27x_keypad.c
-cleanup drivers/input/keyboard/tc3589x-keypad.c
-cleanup drivers/input/misc/bfin_rotary.c
-cleanup drivers/input/misc/wistron_btns.c
-cleanup drivers/input/keyboard/goldfish_events.c
-cleanup drivers/input/misc/tps65218-pwrbutton.c
-cleanup drivers/input/touchscreen/zylonite-wm97xx.c
-cleanup drivers/input/touchscreen/mainstone-wm97xx.c
-cleanup drivers/input/touchscreen/jornada720_ts.c
-cleanup drivers/input/touchscreen/intel-mid-touch.c
-cleanup drivers/input/touchscreen/da9034-ts.c
-cleanup drivers/input/touchscreen/colibri-vf50-ts.c # platform_set_drvdata
-cleanup drivers/input/touchscreen/88pm860x-ts.c
-cleanup drivers/input/misc/twl4030-pwrbutton.c # platform_set_drvdata
-cleanup drivers/input/misc/soc_button_array.c # pdev->dev
-cleanup drivers/input/misc/retu-pwrbutton.c # drop remove function
-cleanup drivers/input/misc/hisi_powerkey.c # pdev->dev -> dev
-cleanup drivers/input/misc/e3x0-button.c # platform_set_drvdata
-cleanup drivers/input/misc/gpio_decoder.c # platform_set_drvdata
-cleanup drivers/input/misc/da9063_onkey.c # platform_set_drvdata
-cleanup drivers/input/misc/arizona-haptics.c # platform_set_drvdata
-cleanup drivers/input/misc/ab8500-ponkey.c # platform_set_drvdata
-cleanup drivers/input/keyboard/sun4i-lradc-keys.c # platform_set_drvdata
-cleanup drivers/input/keyboard/pmic8xxx-keypad.c
-cleanup drivers/input/keyboard/opencores-kbd.c # platform_set_drvdata
-cleanup drivers/input/keyboard/nspire-keypad.c # platform_set_drvdata
-cleanup drivers/input/keyboard/jornada680_kbd.c # platform_set_drvdata
-cleanup drivers/input/keyboard/gpio_keys_polled.c # platform_set_drvdata, pdev
-cleanup drivers/input/keyboard/gpio_keys.c # pdev
-cleanup drivers/input/keyboard/cros_ec_keyb.c # dev_set_drvdata
+# cleanup drivers/input/keyboard/adc-keys.c
+# cleanup drivers/input/keyboard/bcm-keypad.c
+# cleanup drivers/input/keyboard/pxa27x_keypad.c
+# cleanup drivers/input/keyboard/tc3589x-keypad.c
+# cleanup drivers/input/misc/bfin_rotary.c
+# cleanup drivers/input/misc/wistron_btns.c
+# cleanup drivers/input/keyboard/goldfish_events.c
+# cleanup drivers/input/misc/tps65218-pwrbutton.c
+# cleanup drivers/input/touchscreen/zylonite-wm97xx.c
+# cleanup drivers/input/touchscreen/mainstone-wm97xx.c
+# cleanup drivers/input/touchscreen/jornada720_ts.c
+# cleanup drivers/input/touchscreen/intel-mid-touch.c
+# cleanup drivers/input/touchscreen/da9034-ts.c
+# cleanup drivers/input/touchscreen/88pm860x-ts.c
+# cleanup drivers/input/keyboard/pmic8xxx-keypad.c
+
+cleanup drivers/input/mouse/elan_i2c_core.c
 
 # wrong or too complex
+cleanup drivers/input/touchscreen/raydium_i2c_ts.c
+cleanup drivers/input/mouse/synaptics_i2c.c
+cleanup drivers/input/serio/q40kbd.c
+cleanup drivers/input/touchscreen/atmel_mxt_ts.c
+cleanup drivers/input/touchscreen/egalax_ts.c
+cleanup drivers/input/touchscreen/goodix.c
+cleanup drivers/input/touchscreen/ili210x.c	# touchup
+cleanup drivers/input/touchscreen/s3c2410_ts.c	# del_timer_sync failed
+cleanup drivers/input/misc/kxtj9.c
+cleanup drivers/input/keyboard/lm8323.c
 cleanup drivers/input/misc/bfin_rotary.c
 cleanup drivers/input/keyboard/bf54x-keys.c
 cleanup drivers/input/keyboard/imx_keypad.c
