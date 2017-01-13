@@ -162,6 +162,10 @@ findlog_common()
 - Call cancel_delayed_work_sync() using devm_add_action_or_reset()"
 		o=1
 		;;
+	   "devm_kzalloc1")
+		outmsg="${outmsg}
+- Drop error message after devm_kzalloc() failure"
+		;;
 	   *)
 		;;
 	   esac
