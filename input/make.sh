@@ -19,9 +19,9 @@ run ../common/worker
 run ../common/ioremap_resource
 run ../common/ioremap_resource_assigned
 run ../common/ioremap
+run ../common/devm_kzalloc
 run ../common/kzalloc
 run ../common/gpio
-run ../common/goto # Need to run multiple times to avoid hangup
 run ../common/clk_get
 # run ../common/of_clk
 run ../common/clkreturn
@@ -30,7 +30,6 @@ run ../common/clk2
 # run ../common/of_iomap
 # run ../common/mutex_destroy
 run ../common/irq
-run ../common/goto
 run ../common/pdata
 run ../common/pdev
 run ../common/goto
