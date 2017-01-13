@@ -58,14 +58,20 @@ identifier initfn;
 identifier e.pdev;
 position e.p;
 type ptype.T;
+identifier i;
 @@
 
 initfn@p(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
 <+...
+(
 - &pdev->dev
 + d
+|
+- pdev->dev.i
++ dev->i
+)
 ...+> }
 
 // Otherwise make sure that a variable named 'dev' does not already exist.
@@ -115,13 +121,19 @@ identifier initfn;
 identifier pdev;
 type ptype.T;
 position count.p;
+identifier i;
 @@
 
   initfn@p(T *pdev, ...) {
 + struct device *dev = &pdev->dev;
   <...
+(
 - &pdev->dev
 + dev
+|
+- pdev->dev.i
++ dev->i
+)
   ...>
 }
 
