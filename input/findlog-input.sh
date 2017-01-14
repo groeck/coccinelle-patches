@@ -20,7 +20,7 @@ findlog_input()
 		outmsg="${outmsg}
 - Drop error message on error return from [devm_]input_allocate_device"
 		;;
-	    "other1")
+	    "keypad1")
 		outmsg="${outmsg}
 - Call sparse_keymap_free through devm_add_action_or_reset"
 		d=1

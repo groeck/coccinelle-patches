@@ -131,4 +131,4 @@ removefn(...)
 p << keymap.p;
 @@
 
-print >> f, "%s:other1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:keypad1:%s" % (p[0].file, p[0].line)
