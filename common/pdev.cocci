@@ -50,7 +50,38 @@ initfn@p(T *pdev, ...) {
   ...+>
 }
 
-@script:python depends on e@
+// Do some reference counting. this is needed because otherwise
+// it is difficult to determine if the rule was applied or not.
+// Assume that we need to apply the rule if the dev variable exists
+// and if pdev->dev is dereferenced at least twice.
+
+@countprb depends on e@
+identifier initfn;
+identifier pdev;
+type ptype.T;
+position p;
+position p1;
+identifier i;
+@@
+
+initfn@p(T *pdev, ...) {
+  <...
+(
+  &pdev@p1->dev
+|
+  pdev@p1->dev.i
+)
+  ...>
+}
+
+@script:python pcountprb@
+p << countprb.p1;
+@@
+
+if (len(p) < 2):
+    cocci.include_match(False)
+
+@script:python depends on countprb@
 p << e.p;
 @@
 
@@ -58,7 +89,7 @@ print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
 
 // Use existing 'struct device *' variable for transformations if available
 
-@prb depends on e@
+@prb depends on countprb@
 identifier e.d;
 identifier initfn;
 identifier e.pdev;
