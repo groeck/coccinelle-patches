@@ -55,11 +55,11 @@ probefn(T *pdev, ...) { ... }
 // to serio_register_port().
 
 @serio depends on probe@
-identifier initfn;
+identifier probe.probefn;
 expression mp, mp2, e1, e2;
 position p;
 @@
-initfn(...) {
+probefn(...) {
   <+...
   mp =
 (
@@ -79,13 +79,13 @@ initfn(...) {
 }
 
 @alloc depends on probe@
-identifier initfn, pdev;
+identifier probe.probefn, pdev;
 expression mp, mp2, e1, e2;
 position p != serio.p;
 position p1;
 type ptype.T;
 @@
-initfn@p1(T *pdev, ...) {
+probefn@p1(T *pdev, ...) {
   <+...
   mp =
 (
@@ -116,13 +116,13 @@ removefn(...) {
 }
 
 @kcalloc depends on probe@
-identifier initfn, pdev;
+identifier probe.probefn, pdev;
 expression mp;
 expression list es;
 position p;
 type ptype.T;
 @@
-initfn@p(T *pdev, ...) {
+probefn@p(T *pdev, ...) {
   <+...
 - mp = kcalloc(es);
 + mp = devm_kcalloc(&pdev->dev, es);
