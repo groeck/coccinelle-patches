@@ -45,14 +45,20 @@ position p;
 @@
 
 initfn@p(T *pdev, ...) {
-  ...
+  <+...
   struct device *d = &pdev->dev;
-  ... when any
+  ...+>
 }
+
+@script:python depends on e@
+p << e.p;
+@@
+
+print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
 
 // Use existing 'struct device *' variable for transformations if available
 
-@prb@
+@prb depends on e@
 identifier e.d;
 identifier initfn;
 identifier e.pdev;
@@ -64,7 +70,7 @@ identifier i;
 initfn@p(T *pdev, ...) {
   ...
   struct device *d = &pdev->dev;
-<+...
+<...
 (
 - &pdev->dev
 + d
@@ -72,7 +78,7 @@ initfn@p(T *pdev, ...) {
 - pdev->dev.i
 + dev->i
 )
-...+> }
+...> }
 
 // Otherwise make sure that a variable named 'dev' does not already exist.
 
@@ -96,27 +102,28 @@ position p;
   ... when any
   }
 
-// Idea is to only replace &pdev->dev if it is used at least twice
-// and if no variable with the same name exists. The rule below doesn't
-// seem to work, though.
-// Q: How do we determine that &pdev->dev exists at least twice ?
-
-@count exists@
+@count@
 identifier initfn;
 identifier pdev;
 type ptype.T;
 position p;
+position p1;
 @@
 
 initfn@p(T *pdev, ...) {
-  ...
-  &pdev->dev
-  ... when any
-  &pdev->dev
-  ... when any
+  <...
+  &pdev@p1->dev
+  ...>
 }
 
-@new depends on probe && !have_dev && !e && count@
+@script:python pcount@
+p << count.p1;
+@@
+
+if (len(p) < 2):
+    cocci.include_match(False)
+
+@new depends on probe && !have_dev && !e && pcount@
 identifier initfn;
 identifier pdev;
 type ptype.T;
@@ -136,12 +143,6 @@ identifier i;
 )
   ...>
 }
-
-@script:python depends on prb@
-p << e.p;
-@@
-
-print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
 
 @script:python depends on new@
 p << count.p;
