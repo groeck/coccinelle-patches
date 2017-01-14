@@ -16,6 +16,9 @@ input
 common
 	device_create_file -> device_remove_file
 	device_init_wakeup(..., true) -> device_init_wakeup(..., false);
+	sequence
+		var = e;
+		return x != e;
 
 Figure out:
     drivers/input/keyboard/davinci_keyscan.c
