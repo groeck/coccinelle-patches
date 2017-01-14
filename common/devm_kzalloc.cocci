@@ -34,7 +34,7 @@ position p;
   if (\(!mp\|mp==NULL\)) {
   ...
 - \(dev_err\|pr_err\)(...);
-  ... when != mp
+  ... when any
   }
   ...>
 
