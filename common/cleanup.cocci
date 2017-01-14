@@ -65,6 +65,17 @@ initfn(...) {
 -  {}
 ...+> }
 
+@empty_for depends on probe@
+identifier initfn;
+expression e1, e2, e3;
+@@
+
+initfn(...) {
+<+...
+- for (e1; e2; e3)
+-  {}
+...+> }
+
 @e@
 identifier i;
 position p;
@@ -79,7 +90,7 @@ static T i@p;
 
 @unused_assign depends on probe@
 identifier i;
-expression E;
+expression E, f;
 identifier fn;
 type T;
 position p != e.p;
@@ -88,9 +99,13 @@ fn(...)
 {
   ...
   T i@p;
-  ... when any
+  <+... when != i
+(
+  i = <+... f(...) ...+>;
+|
 - i = E;
-  ... when != i
+)
+  ...+>
 }
 
 @unused_assign2 depends on probe@
