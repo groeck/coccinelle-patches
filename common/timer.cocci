@@ -65,7 +65,6 @@ initfn(...)
 {
 <+...
 setup_timer@p(timer, es);
-S
 res = devm_add_action(..., timer);
 ...+>
 }
@@ -111,10 +110,7 @@ initfn(struct platform_device *pdev, ...)
 identifier r.initfn;
 identifier prb.cb;
 @@
-+ static void cb(void *t)
-+ {
-+	del_timer(t);
-+ }
++ static void cb(void *t) { del_timer(t); }
   initfn(...) {...}
 
 @rem@
@@ -165,7 +161,7 @@ setup_timer@p(timer, es);
 ...+>
 }
 
-@rsx@
+@rsx depends on rs@
 identifier rs.initfn;
 expression timer, res;
 expression list es;
@@ -176,7 +172,6 @@ initfn(...)
 {
 <+...
 setup_timer@p(timer, es);
-S
 res = devm_add_action(..., timer);
 ...+>
 }
@@ -222,10 +217,7 @@ initfn(struct platform_device *pdev, ...)
 identifier rs.initfn;
 identifier prbs.cb;
 @@
-+ static void cb(void *t)
-+ {
-+	del_timer_sync(t);
-+ }
++ static void cb(void *t) { del_timer_sync(t); }
   initfn(...) {...}
 
 // Try to do some variable folding.
