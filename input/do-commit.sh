@@ -12,7 +12,7 @@ maintainers()
     cc=""
 
     scripts/get_maintainer.pl --no-l --no-rolestats ${file} | \
-	egrep -v "Dmitry Torokhov|Support Opensource" > ${tmpfile}
+	egrep -v "Dmitry Torokhov|Guenter Roeck|Support Opensource|bcm-kernel-feedback-list" > ${tmpfile}
 
     while read -r m
     do
@@ -33,10 +33,16 @@ do
     o=0
     e=0
     r=0
+    x1=0
+    x2=0
+    x3=0
+    x4=0
 
     findlog_common $a
     findlog_input $a
     maintainers $a
+
+    o=$(($o + $x1 + $x2 + $x3 + $x4 + $e + $r))
     subject=""
     msg=""
     if [ $d -ne 0 ]
@@ -44,7 +50,7 @@ do
         subject="Convert to use device managed functions"
 	msg="Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs."
-	if [ $o -ne 0 -o $r -ne 0 -o $e -ne 0 ]
+	if [ $o -ne 0 ]
 	then
 		subject="${subject} and other improvements"
 		msg="${msg}
@@ -55,7 +61,7 @@ Other improvements as listed below."
 	subject="Drop unnecessary error messages"
 	msg="The kernel already displays an error message after memory
 allocation failures. Messages in the driver are unnecessary."
-	if [ $o -ne 0 -o $r -ne 0 ]
+	if [ $o -gt 1 ]
 	then
 		subject="${subject} and other improvements"
 		msg="${msg}
@@ -66,7 +72,7 @@ Other improvements as listed below."
 	subject="Drop unnecessary cleanup calls from remove function"
 	msg="Calling dev_set_drvdata() or device_init_wakeup() from a
 driver's remove function is unnecessary and can be dropped."
-	if [ $o -ne 0 ]
+	if [ $o -gt 1 ]
 	then
 		subject="${subject} and other improvements"
 		msg="${msg}
