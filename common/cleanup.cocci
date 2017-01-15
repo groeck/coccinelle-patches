@@ -152,6 +152,7 @@ identifier fn;
 identifier i;
 identifier j;
 expression E;
+identifier f;
 type T;
 position p != ex.p;
 position p1;
@@ -178,17 +179,6 @@ expression e1, e2;
 - {
     return e2;
 - }
-
-@drvdata depends on probe@
-identifier remove.removefn;
-expression dev;
-@@
-
-removefn(...) {
-<+...
-- dev_set_drvdata(dev, NULL);
-...+>
-}
 
 @rrem depends on remove@
 identifier remove.removefn;
@@ -257,14 +247,8 @@ p << remove.pos;
 
 print >> f, "%s:cleanup6:%s" % (p[0].file, p[0].line)
 
-@script:python depends on drvdata@
-p << remove.pos;
-@@
-
-print >> f, "%s:cleanup7:%s" % (p[0].file, p[0].line)
-
 @script:python depends on trailing@
 p << trailing.p1;
 @@
 
-print >> f, "%s:cleanup8:%s" % (p[0].file, p[0].line)
+print >> f, "%s:cleanup7:%s" % (p[0].file, p[0].line)

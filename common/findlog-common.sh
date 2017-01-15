@@ -41,7 +41,7 @@ findlog_common()
 - Replace 'if (e) return e; return 0;' with 'return e;'"
 		g4=1
 		;;
-	    "cleanup1" | "cleanup8")
+	    "cleanup1" | "cleanup7")
 		outmsg="${outmsg}
 - Drop assignments to otherwise unused variables"
 		;;
@@ -60,10 +60,16 @@ findlog_common()
 	    "cleanup5" | "cleanup6")
 		# No message for now
 		;;
-	    "cleanup7")
+	    "drop1")
 		outmsg="${outmsg}
 - Drop 'dev_set_drvdata(dev, NULL);'"
-	    	;;
+		r=1
+		;;
+	    "drop2")
+		outmsg="${outmsg}
+- Drop 'device_init_wakeup();' from remove function"
+		r=1
+		;;
 	    "gpio1")
 		outmsg="${outmsg}
 - Replace gpio_request with devm_gpio_request and gpio_request_one with
@@ -169,6 +175,7 @@ findlog_common()
 	   "devm_kzalloc1")
 		outmsg="${outmsg}
 - Drop error message after devm_kzalloc() failure"
+		e=1
 		;;
 	   *)
 		;;
