@@ -78,7 +78,7 @@ probefn(struct platform_device *pdev)
 identifier probe.probefn;
 identifier pxa_probe.cb;
 @@
-+ void cb(void *ssp) { pxa_ssp_free(ssp); }
++ static void cb(void *ssp) { pxa_ssp_free(ssp); }
   probefn(...) {
 + int derr;
   ...
