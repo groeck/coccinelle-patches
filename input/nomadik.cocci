@@ -83,7 +83,7 @@ probefn(T *pdev)
 identifier probe.probefn;
 identifier nomadik_probe.cb;
 @@
-+ void cb(void *_k) { struct ske_keypad *k = _k; k->board->exit(); }
++ static void cb(void *_k) { struct ske_keypad *k = _k; k->board->exit(); }
   probefn(...) { ... }
 
 @depends on nomadik_probe@
