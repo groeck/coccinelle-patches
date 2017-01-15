@@ -41,26 +41,30 @@ findlog_common()
 - Replace 'if (e) return e; return 0;' with 'return e;'"
 		g4=1
 		;;
-	   "cleanup1")
+	    "cleanup1" | "cleanup8")
 		outmsg="${outmsg}
 - Drop assignments to otherwise unused variables"
 		;;
-	   "cleanup2")
+	    "cleanup2")
 		outmsg="${outmsg}
 - Drop unused variables"
 		;;
-	   "cleanup3")
+	    "cleanup3")
 		outmsg="${outmsg}
 - Replace 'if (e) { return expr; }' with 'if (e) return expr;'"
 		;;
-	   "cleanup4")
+	    "cleanup4")
 		outmsg="${outmsg}
 - Drop remove function"
 		;;
-	   "cleanup5" | "cleanup6")
+	    "cleanup5" | "cleanup6")
 		# No message for now
 		;;
-	   "gpio1")
+	    "cleanup7")
+		outmsg="${outmsg}
+- Drop 'dev_set_drvdata(dev, NULL);'"
+	    	;;
+	    "gpio1")
 		outmsg="${outmsg}
 - Replace gpio_request with devm_gpio_request and gpio_request_one with
   devm_gpio_request_one"

@@ -91,6 +91,7 @@ static T i@p;
 @unused_assign depends on probe@
 identifier i;
 expression E, f;
+expression list es;
 identifier fn;
 type T;
 position p != e.p;
@@ -101,6 +102,14 @@ fn(...)
   T i@p;
   <+... when != i
 (
+- i = i2c_get_clientdata(es);
+|
+- i = platform_get_irq_byname(es);
+|
+- i = regmap_irq_get_virq(es);
+|
+- i = platform_get_resource(es);
+|
   i = <+... f(...) ...+>;
 |
 - i = E;
@@ -123,6 +132,45 @@ identifier i;
 - T i;
  ... when != i
 
+@ex@
+identifier i;
+position p;
+type T;
+@@
+
+(
+extern T i@p;
+|
+static T i@p;
+)
+
+// Remove trailing assignments if the result is not used and if the
+// expression used to calculate it does not call a function.
+
+@trailing depends on probe@
+identifier fn;
+identifier i;
+identifier j;
+expression E;
+type T;
+position p != ex.p;
+position p1;
+@@
+
+fn@p1(...)
+{
+  ...
+  T i@p;
+<+...
+(
+  i = <+... f(...) ...+>;
+|
+- i = E;
+)
+  return j;
+  ...+>
+}
+
 @unnecessary_brackets depends on probe@
 expression e1, e2;
 @@
@@ -130,6 +178,17 @@ expression e1, e2;
 - {
     return e2;
 - }
+
+@drvdata depends on probe@
+identifier remove.removefn;
+expression dev;
+@@
+
+removefn(...) {
+<+...
+- dev_set_drvdata(dev, NULL);
+...+>
+}
 
 @rrem depends on remove@
 identifier remove.removefn;
@@ -197,3 +256,15 @@ p << remove.pos;
 @@
 
 print >> f, "%s:cleanup6:%s" % (p[0].file, p[0].line)
+
+@script:python depends on drvdata@
+p << remove.pos;
+@@
+
+print >> f, "%s:cleanup7:%s" % (p[0].file, p[0].line)
+
+@script:python depends on trailing@
+p << trailing.p1;
+@@
+
+print >> f, "%s:cleanup8:%s" % (p[0].file, p[0].line)
