@@ -30,7 +30,17 @@ expression mp;
 position p;
 @@
   <...
-  mp = devm_kzalloc@p(...);
+  mp =
+(
+  devm_kzalloc@p
+|
+  kzalloc@p
+|
+  devm_kmalloc@p
+|
+  kmalloc@p
+)
+  (...);
   if (\(!mp\|mp==NULL\)) {
   ...
 - \(dev_err\|pr_err\)(...);
