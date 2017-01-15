@@ -94,7 +94,7 @@ identifier probe.probefn;
 identifier tilt_probe.cb;
 type tilt.T;
 @@
-+ void cb(void *_pdata)
++ static void cb(void *_pdata)
 + { T *pdata = _pdata; gpio_free_array(pdata->gpios, pdata->nr_gpios); }
   probefn(...) { ... }
 
