@@ -32,6 +32,10 @@ position p;
   <...
   mp =
 (
+  devm_input_allocate_polled_device@p
+|
+  input_allocate_polled_device@p
+|
   devm_input_allocate_device@p
 |
   input_allocate_device@p
