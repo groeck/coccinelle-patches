@@ -35,6 +35,7 @@ do
     x4=0
     p=0
     g4=0
+    e=0
 
     findlog_common $a
     findlog_input $a
@@ -74,7 +75,18 @@ Also use 'dev' instead of dereferencing it several times."
 		subject="${subject} and other cleanup"
 		msg="${msg}
 Also simplify error return."
+	elif [ $e -ne 0 ]
+	then
+		subject="${subject} and other cleanup"
+		msg="${msg}
+Also drop error messages after memory allocation failures."
 	fi
+    elif [ $e -ne 0 ]
+    then
+	subject="Drop error messages after memory allocation failures"
+	msg="${msg}
+Error messages after memory allocation failures are unnecessary and
+can be dropped."
     elif [ $p -ne 0 ]
     then
 	subject="Use 'dev' instead of dereferencing it"

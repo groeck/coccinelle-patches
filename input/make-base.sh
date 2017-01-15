@@ -16,6 +16,7 @@ run()
 run ../common/pdata
 run ../common/pdev
 run ../common/goto
+run ../common/devm_kzalloc
 run ../common/cleanup
 
 if [ -n "${noclean}" ]
@@ -61,7 +62,6 @@ cleanup drivers/input/keyboard/w90p910_keypad.c
 cleanup drivers/input/keyboard/nomadik-ske-keypad.c
 cleanup drivers/input/keyboard/nspire-keypad.c
 cleanup drivers/input/keyboard/opencores-kbd.c
-cleanup drivers/input/keyboard/omap4-keypad.c
 cleanup drivers/input/keyboard/pmic8xxx-keypad.c
 cleanup drivers/input/keyboard/pxa27x_keypad.c
 cleanup drivers/input/keyboard/qt2160.c
@@ -91,6 +91,7 @@ cleanup drivers/input/misc/mc13783-pwrbutton.c
 cleanup drivers/input/misc/mpu3050.c
 cleanup drivers/input/misc/pcf8574_keypad.c
 cleanup drivers/input/misc/pm8941-pwrkey.c
+cleanup drivers/input/misc/pmic8xxx-pwrkey.c
 cleanup drivers/input/misc/pwm-beeper.c
 cleanup drivers/input/misc/rb532_button.c
 cleanup drivers/input/misc/sirfsoc-onkey.c
@@ -106,15 +107,13 @@ cleanup drivers/input/serio/arc_ps2.c
 cleanup drivers/input/serio/at32psif.c
 cleanup drivers/input/serio/olpc_apsp.c
 cleanup drivers/input/touchscreen/88pm860x-ts.c
-cleanup drivers/input/touchscreen/atmel-wm97xx.c
-cleanup drivers/input/touchscreen/atmel_mxt_ts.c
 cleanup drivers/input/touchscreen/auo-pixcir-ts.c
+cleanup drivers/input/touchscreen/bcm_iproc_tsc.c
 cleanup drivers/input/touchscreen/colibri-vf50-ts.c
 cleanup drivers/input/touchscreen/cy8ctmg110_ts.c
 cleanup drivers/input/touchscreen/da9034-ts.c
 cleanup drivers/input/touchscreen/da9052_tsi.c
 cleanup drivers/input/touchscreen/edt-ft5x06.c
-cleanup drivers/input/touchscreen/egalax_ts.c
 cleanup drivers/input/touchscreen/elants_i2c.c
 cleanup drivers/input/touchscreen/fsl-imx25-tcq.c
 cleanup drivers/input/touchscreen/goodix.c
