@@ -187,8 +187,7 @@ identifier probe.probefn;
 identifier prb2.cb;
 @@
 
-+ static void cb(void *w)
-+ { clk_put(w); }
++ static void cb(void *w) { clk_put(w); }
   probefn(...) { ... }
 
 @rem2 depends on prb2@
