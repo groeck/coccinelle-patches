@@ -12,7 +12,7 @@ maintainers()
     cc=""
 
     scripts/get_maintainer.pl --no-l --no-rolestats ${file} | \
-	egrep -v "Nothing yet" > ${tmpfile}
+	egrep -v "Dmitry Torokhov|Support Opensource" > ${tmpfile}
 
     while read -r m
     do
