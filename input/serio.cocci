@@ -74,7 +74,7 @@ initfn(struct platform_device *pdev)
 identifier serio.initfn;
 identifier serio_probe.cb;
 @@
-+ void cb(void *mp) { serio_unregister_port(mp); }
++ static void cb(void *mp) { serio_unregister_port(mp); }
   initfn(...) {
 + int sret;
   ...
