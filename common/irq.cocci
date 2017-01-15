@@ -88,7 +88,7 @@ initfn(T *pdev, ...)
 + devm_request_threaded_irq(&pdev->dev, irq, es)
 |
 - request_any_context_irq(irq, es)
-+ devm_request_any_context_irq(&pdev->dev, es)
++ devm_request_any_context_irq(&pdev->dev, irq, es)
 )
   ...
   when any
