@@ -124,8 +124,7 @@ identifier worker.initfn;
 identifier worker_probe.cb;
 @@
 
-+ static void cb(void *w)
-+ { cancel_delayed_work_sync(w); }
++ static void cb(void *w) { cancel_delayed_work_sync(w); }
   initfn(...) { ... }
 
 // Try to do some variable folding.
