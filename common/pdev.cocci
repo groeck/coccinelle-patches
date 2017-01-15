@@ -111,6 +111,17 @@ initfn@p(T *pdev, ...) {
 )
 ...> }
 
+// formatting cleanup
+
+@depends on prb@
+identifier e.d;
+identifier fn != dev_name;
+expression list es;
+@@
+
+- fn(d, es)
++ fn(d, es)
+
 // Otherwise make sure that a variable named 'dev' does not already exist.
 
 @script:python expected@
@@ -180,3 +191,14 @@ p << count.p;
 @@
 
 print >> f, "%s:pdev2:%s" % (p[0].file, p[0].line)
+
+// formatting cleanup
+
+@depends on new@
+identifier fn != dev_name;
+expression list es;
+identifier expected.dev;
+@@
+
+- fn(dev, es)
++ fn(dev, es)
