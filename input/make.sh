@@ -19,6 +19,8 @@ run errmsg
 run keypad
 run gpio_array
 run pxa_ssp
+run mcs_touchkey
+
 run ../common/worker
 run ../common/ioremap_resource
 run ../common/ioremap_resource_assigned
@@ -27,6 +29,7 @@ run ../common/kzalloc
 run ../common/devm_kzalloc
 run ../common/gpio
 run ../common/clk_get
+run ../common/timer
 # run ../common/of_clk
 run ../common/clkreturn
 run ../common/clk2
@@ -51,7 +54,11 @@ run ../common/goto
 run ../common/cleanup
 run ../common/pdata
 
-# 3rd round of cleanup. Only goto needed here.
+# 3rd round of cleanup.
+run ../common/goto
+run ../common/cleanup
+
+# 4th round. Still more gotos to drop.
 run ../common/goto
 
 if [ -n "${noclean}" ]
@@ -72,67 +79,57 @@ cleanup()
 #	adp5589_gpio_remove
 #   	->  Not really needed because adp5589_gpio_add() is called last
 #	    in the probe function
-# drivers/input/misc/gpio_tilt_polled.c
-#	gpio_free_array
-#	-> gpio_array.cocci
 
-# drivers/input/keyboard/matrix_keypad.c
-#	matrix_keypad_free_gpio
-#	-> Free function no longer needed at all since
-#	   probe function uses devm_ calls.
-#	-> cleanup.cocci
-
-# drivers/input/keyboard/nomadik-ske-keypad.c
-#	Needs to address
-#		if (keypad->board->exit)
-#	                keypad->board->exit();
-#	-> nomadik.cocci
-
-# drivers/input/misc/gp2ap002a00f.c
-#	Need to address
-#		if (pdata->hw_shutdown)
-#	                pdata->hw_shutdown(client);
-#	-> gp2a.cocci
-
-# drivers/input/mouse/gpio_mouse.c
-#	Revisit. Manual cleanup ?
-# cleanup drivers/input/mouse/gpio_mouse.c
-
-# drivers/input/mouse/navpoint.c
-#	Needs to address pxa_ssp_free().
-#	-> pxa_ssp.cocci
-
-cleanup drivers/input/serio/at32psif.c		# misses non-serio kzalloc/kfree
+# drivers/input/keyboard/mcs_touchkey.c
+#	handle:
+#		if (data->poweron)
+#			data->poweron(false);
+#	-> mcs_touchkey.cocci
 
 # The following patches are known to be broken, problematic, or cosmetic
 
-# cleanup drivers/input/keyboard/adp5520-keys.c	# cosmetic
-cleanup drivers/input/keyboard/bf54x-keys.c	# del_timer_sync, peripheral_free_list
+# cleanup drivers/input/keyboard/adp5520-keys.c	# cosmetic (err msg)
+cleanup drivers/input/keyboard/bcm-keypad.c	# bad clk_prepare_enable hndl
+cleanup drivers/input/keyboard/bf54x-keys.c	# peripheral_free_list
 cleanup drivers/input/keyboard/ep93xx_keypad.c	# ep93xx_keypad_release_gpio,
 						# conditional clk_disable
-cleanup drivers/input/keyboard/imx_keypad.c	# wrong (clk_enable_prepare!)
-# cleanup drivers/input/keyboard/gpio_keys.c	# cosmetic
-cleanup drivers/input/keyboard/gpio_keys_polled.c # cosmetic
+cleanup drivers/input/keyboard/imx_keypad.c	# bad clk_prepare_enable hndl 
+# cleanup drivers/input/keyboard/gpio_keys.c	# cosmetic (err msg)
+# cleanup drivers/input/keyboard/gpio_keys_polled.c # cosmetic (err msg)
 cleanup drivers/input/keyboard/lm8323.c		# various
 cleanup drivers/input/keyboard/lpc32xx-keys.c	# wrong (clk_enable...)
-cleanup drivers/input/keyboard/max7359_keypad.c # cosmetic
-cleanup drivers/input/keyboard/omap-keypad.c	# various
-cleanup drivers/input/keyboard/omap4-keypad.c	# various
+# cleanup drivers/input/keyboard/max7359_keypad.c # cosmetic (err msg)
+cleanup drivers/input/keyboard/omap-keypad.c	# device_remove_file, gpio_free,
+						# tasklet_kill,
+						# ...
+cleanup drivers/input/keyboard/omap4-keypad.c	# pm, device_init_wakeup
+cleanup drivers/input/keyboard/samsung-keypad.c	# various
 cleanup drivers/input/keyboard/sh_keysc.c	# pwm
 cleanup drivers/input/keyboard/tca6416-keypad.c	# irq handling 
-cleanup drivers/input/misc/88pm80x_onkey.c	# irq handling
+# cleanup drivers/input/misc/88pm80x_onkey.c	# irq handling
+						# should be ok (released first)
 cleanup drivers/input/misc/bfin_rotary.c	# cosmetic
 cleanup drivers/input/misc/bma150.c		# various
 cleanup drivers/input/misc/ixp4xx-beeper.c	# removal complexity
 cleanup drivers/input/misc/kxtj9.c		# complex
 cleanup drivers/input/misc/m68kspkr.c		# cleanup sequence
+						# (m68kspkr_event last)
 cleanup drivers/input/misc/max8997_haptic.c	# pwm, regulator
-cleanup drivers/input/misc/mpu3050.c		# pwm
+# cleanup drivers/input/misc/mpu3050.c		# pwm
+						# should be safe (removal # sequence not changed)
 cleanup drivers/input/misc/pwm-beeper.c		# pwm
 cleanup drivers/input/misc/pcspkr.c		# cleanup sequence
-cleanup drivers/input/misc/sparcspkr.c		# of_ioremap
+						# pcspkr_event comes last
+cleanup drivers/input/misc/pwm-beeper.c		# needs devm_pwm_get
+# cleanup drivers/input/misc/sparcspkr.c	# of_ioremap
+# 						# should be ok
+cleanup drivers/input/misc/wistron_btns.c	# cosmetic
+cleanup drivers/input/mouse/cyapa.c		# cosmetic
 cleanup drivers/input/mouse/elan_i2c_core.c	# cosmetic
-cleanup drivers/input/mouse/synaptics_i2c.c	# missed kfree()
+cleanup drivers/input/mouse/synaptics_i2c.c	# unsynchronized kfree (indirect)
+cleanup drivers/input/serio/altera_ps2.c	# no improvement
+cleanup drivers/input/serio/arc_ps2.c		# incomplete
+cleanup drivers/input/serio/at32psif.c		# misses non-serio kzalloc/kfree
 cleanup drivers/input/serio/ct82c710.c		# no value
 cleanup drivers/input/serio/maceps2.c		# not worth it
 cleanup drivers/input/serio/q40kbd.c		# missed kzalloc/kfree
@@ -140,10 +137,20 @@ cleanup drivers/input/serio/rpckbd.c		# missed kzalloc/kfree
 cleanup drivers/input/serio/sun4i-ps2.c		# missed kzalloc/kfree
 cleanup drivers/input/serio/xilinx_ps2.c	# removal complexity
 cleanup drivers/input/touchscreen/ad7877.c	# wrong
+						# free_irq, sysfs_remove_group
+cleanup drivers/input/touchscreen/ads7846.c	# wrong, incomplete
 cleanup drivers/input/touchscreen/ad7879-spi.c	# wrong
+cleanup drivers/input/touchscreen/atmel-wm97xx.c # wrong, incomplete
 cleanup drivers/input/touchscreen/atmel_mxt_ts.c # wrong
-cleanup drivers/input/touchscreen/egalax_ts.c	# cosmetic, wrong ?
-cleanup drivers/input/touchscreen/goodix.c	# wrong
-cleanup drivers/input/touchscreen/ili210x.c	# touchup
+cleanup drivers/input/touchscreen/bu21013_ts.c	# regulator
+cleanup drivers/input/touchscreen/chipone_icn8318.c # cosmetic
+cleanup drivers/input/touchscreen/cy8ctmg110_ts.c # removal complexity
+cleanup drivers/input/touchscreen/eeti_ts.c	# free_irq followed by enable_irq
+cleanup drivers/input/touchscreen/egalax_ts.c	# cosmetic, wrong in egalax_wake_up_device
+cleanup drivers/input/touchscreen/ektf2127.c	# cosmetic
+cleanup drivers/input/touchscreen/ili210x.c	# missed free_irq
+cleanup drivers/input/touchscreen/mainstone-wm97xx.c # cosmetic
 cleanup drivers/input/touchscreen/raydium_i2c_ts.c # wrong
 cleanup drivers/input/touchscreen/s3c2410_ts.c	# del_timer_sync failed
+cleanup drivers/input/touchscreen/ti_am335x_tsc.c # removal complexity
+cleanup drivers/input/touchscreen/zylonite-wm97xx.c # cosmetic

@@ -2,39 +2,28 @@ devm_add_action_or_reset
 
 input
     all
-    	irq release function can be anywhere, not just in remove (matrix)
-	gpio request and release function can be anywhere (matrix)
 	serio_register_port -> devm_add_action_or_reset(..., serio_unregister_port, ...)
-
 	pwm: difficult. drop.
+	pwm_request -> pwm_free via add_action
+	regulator_get -> regulator_put via action
 
     special
 	-> ep93xx_keypad_release_gpio
-	-> matrix_keypad_free_gpio
-	pxa_ssp_request -> pxa_ssp_free
 
 common
-	device_create_file -> device_remove_file
+	device_create_file -> device_remove_file (lm8323)
 	device_init_wakeup(..., true) -> device_init_wakeup(..., false);
-	sequence
-		var = e;
-		return x != e;
-
-Figure out:
-    drivers/input/keyboard/davinci_keyscan.c
-	key_dev = NULL;
-	return error;
+				(matrix_keypad.c)
+	led_classdev_register -> devm_led_classdev_register (lm8323)
+	pwm_get / pwm_free -> devm_pwm_get
+	Cleanup: safe functions ok to drop
+		regmap_irq_get_virq
+		platform_get_irq_byname
+		platform_get_resource
 
 Manual:
     drivers/input/keyboard/davinci_keyscan.c
     	davinci_ks->pbase is now unused
 	davinci_ks->base_size is now unused
-    drivers/input/keyboard/nomadik-ske-keypad.c
-	if (keypad->board->exit)
-	                keypad->board->exit();
-	via devm
-    drivers/input/misc/gpio_tilt_polled.c
-    	gpio_free_array
     drivers/input/keyboard/matrix_keypad.c
-        various; request_any_context_irq, gpio, others
-	drop for now
+	matrix_keypad_init_gpio() assignments and goto
