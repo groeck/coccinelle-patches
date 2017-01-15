@@ -79,7 +79,7 @@ identifier probe.probefn;
 identifier gp2a_probe.cb;
 identifier gp2a_probe.client;
 @@
-+ void cb(void *_g) { struct gp2a_platform_data *g = _g; g->hw_shutdown(client); }
++ static void cb(void *_g) { struct gp2a_platform_data *g = _g; g->hw_shutdown(client); }
   probefn(...) { ... }
 
 @depends on gp2a_probe@
@@ -95,7 +95,7 @@ identifier g;
 )
   (...){
   ...
-  struct gp2a_platform_data *g;;
+  struct gp2a_platform_data *g;
   <...
 - if (g->hw_shutdown) S
   ...>
