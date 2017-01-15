@@ -14,12 +14,13 @@ common
 	device_create_file -> device_remove_file (lm8323)
 	device_init_wakeup(..., true) -> device_init_wakeup(..., false);
 				(matrix_keypad.c)
+		Needed on remove ?
 	led_classdev_register -> devm_led_classdev_register (lm8323)
-	pwm_get / pwm_free -> devm_pwm_get
+		-> does not really work well. drop.
 	Cleanup: safe functions ok to drop
-		regmap_irq_get_virq
-		platform_get_irq_byname
-		platform_get_resource
+		regmap_irq_get_virq (done)
+		platform_get_irq_byname (done)
+		platform_get_resource (done)
 
 Manual:
     drivers/input/keyboard/davinci_keyscan.c
