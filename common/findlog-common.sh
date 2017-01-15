@@ -101,7 +101,7 @@ findlog_common()
 		;;
 	    "kzalloc1")
 		outmsg="${outmsg}
-- Replace kzalloc and kmalloc with devm_kzalloc"
+- Replace kzalloc with devm_kzalloc and kmalloc with devm_kmalloc"
 		d=1
 		;;
 	   "mutex1")
