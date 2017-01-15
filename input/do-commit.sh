@@ -33,6 +33,7 @@ do
     o=0
     e=0
     r=0
+    p=0
     x1=0
     x2=0
     x3=0
@@ -42,7 +43,7 @@ do
     findlog_input $a
     maintainers $a
 
-    o=$(($o + $x1 + $x2 + $x3 + $x4 + $e + $r))
+    o=$(($o + $p + $x1 + $x2 + $x3 + $x4 + $e + $r))
     subject=""
     msg=""
     if [ $d -ne 0 ]
