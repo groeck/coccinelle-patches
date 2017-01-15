@@ -91,7 +91,7 @@ v < 0
 identifier keymap.initfn;
 identifier keymap_probe.cb;
 @@
-+ void cb(void *map) { sparse_keymap_free(map); }
++ static void cb(void *map) { sparse_keymap_free(map); }
   initfn(...) { ... }
 
 @depends on keymap_probe@
