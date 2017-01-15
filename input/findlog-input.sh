@@ -19,6 +19,7 @@ findlog_input()
 	    "errmsg1")
 		outmsg="${outmsg}
 - Drop error message on error return from [devm_]input_allocate_device"
+		e=1
 		;;
 	    "keypad1")
 		outmsg="${outmsg}

@@ -31,6 +31,8 @@ do
     outmsg=""
     d=0
     o=0
+    e=0
+    r=0
 
     findlog_common $a
     findlog_input $a
@@ -42,6 +44,28 @@ do
         subject="Convert to use device managed functions"
 	msg="Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs."
+	if [ $o -ne 0 -o $r -ne 0 -o $e -ne 0 ]
+	then
+		subject="${subject} and other improvements"
+		msg="${msg}
+Other improvements as listed below."
+	fi
+    elif [ $e -ne 0 ]
+    then
+	subject="Drop unnecessary error messages"
+	msg="The kernel already displays an error message after memory
+allocation failures. Messages in the driver are unnecessary."
+	if [ $o -ne 0 -o $r -ne 0 ]
+	then
+		subject="${subject} and other improvements"
+		msg="${msg}
+Other improvements as listed below."
+	fi
+    elif [ $r -ne 0 ]
+    then
+	subject="Drop unnecessary cleanup calls from remove function"
+	msg="Calling dev_set_drvdata() or device_init_wakeup() from a
+driver's remove function is unnecessary and can be dropped."
 	if [ $o -ne 0 ]
 	then
 		subject="${subject} and other improvements"
