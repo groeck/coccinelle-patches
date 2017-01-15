@@ -41,59 +41,59 @@ probefn(...)
 identifier probe.probefn;
 statement S1, S2;
 identifier g;
+position gp2a.p;
 @@
 probefn(...)
 {
   ...
   struct gp2a_platform_data *g;
 <+...
-  if (g->hw_setup) S1
+  if (g@p->hw_setup) S1
   if (g->hw_shutdown) S2
 ...+>
 }
 
-@gp2a_probe depends on !gp2ad@
+@gp2a_probe depends on gp2a && !gp2ad@
 identifier probe.probefn;
 fresh identifier cb = probefn ## "_shutdown_cb";
-statement S;
-identifier g;
-type T;
+identifier pdata;
 identifier client;
+position gp2a.p;
+statement S1, S2;
 @@
 
-probefn(T *client, ...)
+probefn(struct i2c_client *client, ...)
 {
   ...
-  struct gp2a_platform_data *g;
+  struct gp2a_platform_data *pdata;
 <+...
-  if (g->hw_setup) S
-+ if (g->hw_shutdown) {
-+   error = devm_add_action_or_reset(&client->dev, cb, g);
+  if (pdata@p->hw_setup) S1
++ if (pdata->hw_shutdown) {
++   error = devm_add_action_or_reset(&client->dev, cb, client);
 +   if (error) return error;
 + }
-...+>
+  ... when any
+?-if (pdata->hw_shutdown) S2
+  ...+>
 }
 
 @depends on gp2a_probe@
 identifier probe.probefn;
 identifier gp2a_probe.cb;
-identifier gp2a_probe.client;
 @@
-+ static void cb(void *_g) { struct gp2a_platform_data *g = _g; g->hw_shutdown(client); }
++ static void cb(void *_c)
++ { struct i2c_client *c = _c;
++   const struct gp2a_platform_data *pdata = dev_get_platdata(&c->dev);
++   pdata->hw_shutdown(c); }
   probefn(...) { ... }
 
 @depends on gp2a_probe@
-identifier remove.removefn, probe.probefn;
+identifier remove.removefn;
 statement S;
 identifier g;
 @@
 
-(
-  removefn
-|
-  probefn
-)
-  (...){
+  removefn(...){
   ...
   struct gp2a_platform_data *g;
   <...
