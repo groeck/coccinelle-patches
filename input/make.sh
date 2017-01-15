@@ -30,6 +30,7 @@ run ../common/devm_kzalloc
 run ../common/gpio
 run ../common/clk_get
 run ../common/timer
+run ../common/pwm_get
 # run ../common/of_clk
 run ../common/clkreturn
 run ../common/clk2
@@ -38,6 +39,8 @@ run ../common/clk2
 # run ../common/mutex_destroy
 run ../common/irq
 run ../common/pdev
+
+run ../common/drop
 
 # 1st round of cleanup
 run ../common/goto
@@ -105,6 +108,10 @@ cleanup drivers/input/keyboard/omap-keypad.c	# device_remove_file, gpio_free,
 cleanup drivers/input/keyboard/omap4-keypad.c	# pm, device_init_wakeup
 cleanup drivers/input/keyboard/samsung-keypad.c	# various
 cleanup drivers/input/keyboard/sh_keysc.c	# pwm
+cleanup drivers/input/keyboard/spear-keyboard.c	# clk_prepare/clk_unprepare,
+						# input_unregister_device called
+						# even though devm_input_allocate_device
+						# is already used
 cleanup drivers/input/keyboard/tca6416-keypad.c	# irq handling 
 # cleanup drivers/input/misc/88pm80x_onkey.c	# irq handling
 						# should be ok (released first)
@@ -117,10 +124,8 @@ cleanup drivers/input/misc/m68kspkr.c		# cleanup sequence
 cleanup drivers/input/misc/max8997_haptic.c	# pwm, regulator
 # cleanup drivers/input/misc/mpu3050.c		# pwm
 						# should be safe (removal # sequence not changed)
-cleanup drivers/input/misc/pwm-beeper.c		# pwm
 cleanup drivers/input/misc/pcspkr.c		# cleanup sequence
 						# pcspkr_event comes last
-cleanup drivers/input/misc/pwm-beeper.c		# needs devm_pwm_get
 # cleanup drivers/input/misc/sparcspkr.c	# of_ioremap
 # 						# should be ok
 cleanup drivers/input/misc/wistron_btns.c	# cosmetic
@@ -152,5 +157,6 @@ cleanup drivers/input/touchscreen/ili210x.c	# missed free_irq
 cleanup drivers/input/touchscreen/mainstone-wm97xx.c # cosmetic
 cleanup drivers/input/touchscreen/raydium_i2c_ts.c # wrong
 cleanup drivers/input/touchscreen/s3c2410_ts.c	# del_timer_sync failed
+cleanup drivers/input/touchscreen/st1232.c	# not worth it
 cleanup drivers/input/touchscreen/ti_am335x_tsc.c # removal complexity
 cleanup drivers/input/touchscreen/zylonite-wm97xx.c # cosmetic
