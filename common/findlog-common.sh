@@ -147,7 +147,7 @@ findlog_common()
 	   "pdev2")
 		outmsg="${outmsg}
 - Introduce local variable 'struct device *dev' and use it instead of
-  dereferencing it several times"
+  dereferencing it repeatedly"
 		p=2
 		;;
 	   "timer1")
