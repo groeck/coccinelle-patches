@@ -69,7 +69,7 @@ Other improvements as listed below."
 	fi
     elif [ $r -ne 0 ]
     then
-	subject="Drop unnecessary cleanup calls from remove function"
+	subject="Drop unnecessary cleanup calls"
 	msg="Calling dev_set_drvdata() or device_init_wakeup() from a
 driver's remove function is unnecessary and can be dropped."
 	if [ $o -gt 1 ]
