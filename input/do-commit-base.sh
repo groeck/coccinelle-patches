@@ -71,7 +71,7 @@ do
 Drop the unnecessary call to ${xmsg}()."
     elif [ $e -ne 0 ]
     then
-	subject="Drop error messages after memory allocation failures"
+	subject="Drop unnecessary error messages"
 	msg="${msg}
 Error messages after memory allocation failures are unnecessary and
 can be dropped."
@@ -88,7 +88,7 @@ can be dropped."
 	g4=0
     elif [ $a != 0 ]
     then
-	subject="Replace devm_add_action with devm_add_action_or_reset"
+	subject="Use devm_add_action_or_reset"
 	msg="Replace devm_add_action() followed by failure action with
 devm_add_action_or_reset()"
 	a=0
@@ -154,6 +154,9 @@ https://github.com/groeck/coccinelle-patches" \
 	;;
     "drivers/input/touchscreen/ad7879-spi.c")
 	pfile="0005-drivers-input-touchscreen-ad7879-spi.c-fixup.patch"
+	;;
+    "drivers/input/misc/soc_button_array.c")
+	pfile="0001-drivers-input-misc-soc_button_array.c-fixup.patch"
 	;;
     *)
 	;;
