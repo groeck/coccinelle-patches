@@ -102,6 +102,8 @@ fn(...)
   T i@p;
   <+... when != i
 (
+- i = dev_get_drvdata(es);
+|
 - i = i2c_get_clientdata(es);
 |
 - i = platform_get_irq_byname(es);
@@ -109,6 +111,8 @@ fn(...)
 - i = regmap_irq_get_virq(es);
 |
 - i = platform_get_resource(es);
+|
+- i = platform_get_drvdata(es);
 |
   i = <+... f(...) ...+>;
 |
