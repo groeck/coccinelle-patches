@@ -56,6 +56,7 @@ findlog_common()
 	    "cleanup4")
 		outmsg="${outmsg}
 - Drop empty remove function"
+		rf=1
 		o=1
 		;;
 	    "cleanup5" | "cleanup6")
