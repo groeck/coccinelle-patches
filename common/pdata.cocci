@@ -41,6 +41,16 @@ identifier probe.p, removefn;
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
+@exclude depends on probe exists@
+identifier probe.probefn;
+@@
+
+probefn(...) {
+ <+...
+  cyttsp_probe(...)
+ ...+>
+}
+
 @used depends on probe@
 identifier fn != probe.probefn;
 @@
@@ -59,7 +69,7 @@ spi_get_drvdata(...)
  ...+>
 }
 
-@r1 depends on !used@
+@r1 depends on !used && !exclude@
 identifier probe.probefn;
 position p;
 @@
@@ -69,7 +79,7 @@ probefn(...) {
 - platform_set_drvdata@p(...);
 ...> }
 
-@r2 depends on !used@
+@r2 depends on !used && !exclude@
 identifier probe.probefn;
 position p;
 @@
@@ -79,7 +89,7 @@ probefn(...) {
 - dev_set_drvdata@p(...);
 ...> }
 
-@r3 depends on !used@
+@r3 depends on !used && !exclude@
 identifier probe.probefn;
 position p;
 @@
@@ -89,7 +99,7 @@ probefn(...) {
 - i2c_set_clientdata@p(...);
 ...> }
 
-@r4 depends on !used@
+@r4 depends on !used && !exclude@
 identifier probe.probefn;
 position p;
 @@
