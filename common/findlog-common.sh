@@ -7,7 +7,7 @@ findlog_common()
 	for action in $(grep ${file} coccinelle.log | cut -f2 -d: | sort -u)
 	do
 	   case "${action}" in
-	   "clk1" | "clk2")
+	   "clk1")
 		outmsg="${outmsg}
 - Use devm_add_action_or_reset() for calls to clk_disable_unprepare"
 		d=1
@@ -41,7 +41,7 @@ findlog_common()
 - Replace 'if (e) return e; return 0;' with 'return e;'"
 		g4=1
 		;;
-	    "cleanup1" | "cleanup7")
+	    "cleanup1")
 		outmsg="${outmsg}
 - Drop assignments to otherwise unused variables"
 		;;
@@ -177,7 +177,7 @@ findlog_common()
 - Drop error message after devm_kzalloc() failure"
 		e=1
 		;;
-	    "action1" | "action2")
+	    "action1")
 		outmsg="${outmsg}
 - Replace devm_add_action() followed by failure action with
   devm_add_action_or_reset()"

@@ -145,4 +145,4 @@ expression list es;
 p << probe.pos;
 @@
 
-print >> f, "%s:action2:%s" % (p[0].file, p[0].line)
+print >> f, "%s:action1:%s" % (p[0].file, p[0].line)
