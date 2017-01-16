@@ -46,11 +46,11 @@ cleanup drivers/input/joystick/as5011.c
 cleanup drivers/input/keyboard/adc-keys.c
 cleanup drivers/input/keyboard/adp5588-keys.c
 cleanup drivers/input/keyboard/adp5589-keys.c
-cleanup drivers/input/keyboard/bcm-keypad.c
+# cleanup drivers/input/keyboard/bcm-keypad.c	# skipped in main
 cleanup drivers/input/keyboard/davinci_keyscan.c
 cleanup drivers/input/keyboard/gpio_keys.c
 cleanup drivers/input/keyboard/gpio_keys_polled.c
-cleanup drivers/input/keyboard/imx_keypad.c
+# cleanup drivers/input/keyboard/imx_keypad.c	# skipped in main
 cleanup drivers/input/keyboard/lm8333.c
 cleanup drivers/input/keyboard/jornada680_kbd.c
 cleanup drivers/input/keyboard/matrix_keypad.c
@@ -65,9 +65,9 @@ cleanup drivers/input/keyboard/opencores-kbd.c
 cleanup drivers/input/keyboard/pmic8xxx-keypad.c
 cleanup drivers/input/keyboard/pxa27x_keypad.c
 cleanup drivers/input/keyboard/qt2160.c
-cleanup drivers/input/keyboard/samsung-keypad.c
+# cleanup drivers/input/keyboard/samsung-keypad.c	# skipped in main
 cleanup drivers/input/keyboard/snvs_pwrkey.c
-cleanup drivers/input/keyboard/spear-keyboard.c
+# cleanup drivers/input/keyboard/spear-keyboard.c	# skipped in main
 cleanup drivers/input/keyboard/st-keyscan.c
 cleanup drivers/input/keyboard/tc3589x-keypad.c
 cleanup drivers/input/keyboard/tegra-kbc.c
@@ -103,8 +103,8 @@ cleanup drivers/input/mouse/gpio_mouse.c
 cleanup drivers/input/mouse/navpoint.c
 cleanup drivers/input/mouse/pxa930_trkball.c
 cleanup drivers/input/serio/apbps2.c
-cleanup drivers/input/serio/arc_ps2.c
-cleanup drivers/input/serio/at32psif.c
+# cleanup drivers/input/serio/arc_ps2.c		# skipped in main
+# cleanup drivers/input/serio/at32psif.c	# skipped in main
 cleanup drivers/input/serio/olpc_apsp.c
 cleanup drivers/input/touchscreen/88pm860x-ts.c
 cleanup drivers/input/touchscreen/auo-pixcir-ts.c
