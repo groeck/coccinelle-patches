@@ -60,7 +60,6 @@ run ../common/cleanup
 run ../common/pdata
 
 # 3rd round of cleanup.
-run ../common/pdev
 run ../common/goto
 run ../common/cleanup
 
