@@ -59,6 +59,7 @@ run ../common/cleanup
 run ../common/pdata
 
 # 3rd round of cleanup.
+run ../common/pdev
 run ../common/goto
 run ../common/cleanup
 
@@ -106,7 +107,8 @@ cleanup drivers/input/keyboard/lpc32xx-keys.c	# wrong (clk_enable...)
 cleanup drivers/input/keyboard/omap-keypad.c	# device_remove_file, gpio_free,
 						# tasklet_kill,
 						# ...
-cleanup drivers/input/keyboard/omap4-keypad.c	# pm, device_init_wakeup
+# cleanup drivers/input/keyboard/omap4-keypad.c	# pm, device_init_wakeup
+						# cleanup reorder should be safe
 cleanup drivers/input/keyboard/samsung-keypad.c	# various
 cleanup drivers/input/keyboard/sh_keysc.c	# pwm
 cleanup drivers/input/keyboard/spear-keyboard.c	# clk_prepare/clk_unprepare,
