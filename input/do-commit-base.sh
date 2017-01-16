@@ -1,4 +1,5 @@
 basedir=$(cd $(dirname $0); pwd)
+patchdir=${basedir}/patches
 
 . ${basedir}/../common/findlog-common.sh
 . ${basedir}/findlog-input.sh
@@ -36,6 +37,7 @@ do
     p=0
     g4=0
     e=0
+    o=0
 
     findlog_common $a
     findlog_input $a
@@ -87,6 +89,12 @@ Also drop error messages after memory allocation failures."
 	msg="${msg}
 Error messages after memory allocation failures are unnecessary and
 can be dropped."
+	if [ $p -ne 0 ]
+	then
+	    subject="${subject} and other cleanup"
+	    msg="${msg}
+Also use 'dev' instead of dereferencing it several times."
+	fi
     elif [ $p -ne 0 ]
     then
 	subject="Use 'dev' instead of dereferencing it"
@@ -108,4 +116,34 @@ used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches" \
 -m "${outmsg}" \
 -m "${cc}"
+    do=0
+    case "$a" in
+    "drivers/input/keyboard/ipaq-micro-keys.c")
+	patch -p 1 < ${patchdir}/0001-drivers-input-keyboard-ipaq-micro-keys.c-fixup.patch
+	do=1
+	;;
+    "drivers/input/misc/adxl34x-i2c.c")
+	patch -p 1 < ${patchdir}/0002-drivers-input-misc-adxl34x-i2c.c-fixup.patch
+	do=1
+	;;
+    "drivers/input/misc/tps65218-pwrbutton.c")
+	patch -p 1 < ${patchdir}/0003-drivers-input-misc-tps65218-pwrbutton.c-fixup.patch
+	do=1
+	;;
+    "drivers/input/mouse/elan_i2c_core.c")
+	patch -p 1 < ${patchdir}/0004-drivers-input-mouse-elan_i2c_core.c-fixup.patch
+	do=1
+	;;
+    "drivers/input/touchscreen/ad7879-spi.c")
+	patch -p 1 < ${patchdir}/0005-drivers-input-touchscreen-ad7879-spi.c-fixup.patch
+	do=1
+	;;
+    *)
+	;;
+    esac
+    if [ $do -ne 0 ]
+    then
+	git add $a
+	git commit --amend --no-edit
+    fi
 done

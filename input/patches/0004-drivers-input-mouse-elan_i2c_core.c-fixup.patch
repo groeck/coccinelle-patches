@@ -1,0 +1,41 @@
+From 70dd4af3c6e1702c215ef685e2f25e7c22fcdf4c Mon Sep 17 00:00:00 2001
+From: Guenter Roeck <linux@roeck-us.net>
+Date: Sun, 15 Jan 2017 23:10:47 -0800
+Subject: [PATCH 4/5] drivers/input/mouse/elan_i2c_core.c fixup
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/input/mouse/elan_i2c_core.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 1b318383f0c7..158355621871 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1087,14 +1087,18 @@ static int elan_probe(struct i2c_client *client,
+ 
+ 	dev_info(dev,
+ 		 "Elan Touchpad: Module ID: 0x%04x, Firmware: 0x%04x, Sample: 0x%04x, IAP: 0x%04x\n",
+-		 data->product_id, data->fw_version, data->sm_version,
++		 data->product_id,
++		 data->fw_version,
++		 data->sm_version,
+ 		 data->iap_version);
+ 
+ 	dev_dbg(dev, "Elan Touchpad Extra Information:\n"
+-		"    Max ABS X,Y:   %d,%d\n" "    Width X,Y:   %d,%d\n"
+-		"    Resolution X,Y:   %d,%d (dots/mm)\n", data->max_x,
+-		data->max_y, data->width_x, data->width_y, data->x_res,
+-		data->y_res);
++		"    Max ABS X,Y:   %d,%d\n"
++		"    Width X,Y:   %d,%d\n"
++		"    Resolution X,Y:   %d,%d (dots/mm)\n",
++		data->max_x, data->max_y,
++		data->width_x, data->width_y,
++		data->x_res, data->y_res);
+ 
+ 	/* Set up input device properties based on queried parameters. */
+ 	error = elan_setup_input_device(data);
+-- 
+2.7.4
+
