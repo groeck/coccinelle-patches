@@ -49,7 +49,7 @@ do
     msg=""
     if [ $d -ne 0 ]
     then
-        subject="Convert to use device managed functions"
+        subject="Use device managed functions"
 	msg="Use device managed functions to simplify error handling, reduce
 source code size, improve readability, and reduce the likelyhood of bugs."
 	if [ $o -ne 0 ]
