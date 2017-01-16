@@ -62,9 +62,12 @@ type ptype.T;
 position p;
 position p1;
 identifier i;
+identifier d;
 @@
 
 initfn@p(T *pdev, ...) {
+  ...
+  struct device *d = &pdev->dev;
   <...
 (
   &pdev@p1->dev
@@ -78,14 +81,14 @@ initfn@p(T *pdev, ...) {
 p << countprb.p1;
 @@
 
-if (len(p) < 2):
+if (len(p) < 1):
     cocci.include_match(False)
 
-@script:python depends on pcountprb@
-p << e.p;
+@script:python depends on countprb && pcountprb@
+p << countprb.p1;
 @@
 
-print >> f, "%s:pdev1:%s" % (p[0].file, p[0].line)
+print >> f, "%s:pdev1:%s:%d" % (p[0].file, p[0].line, len(p))
 
 // Use existing 'struct device *' variable for transformations if available
 
@@ -130,7 +133,7 @@ dev;
 coccinelle.dev = 'dev'
 
 @have_dev depends on probe exists@
-identifier initfn;
+identifier initfn != prb.initfn;
 identifier expected.dev;
 identifier pdev;
 type ptype.T;
@@ -145,7 +148,7 @@ position p;
   }
 
 @count@
-identifier initfn;
+identifier initfn != have_dev.initfn;
 identifier pdev;
 type ptype.T;
 position p;
@@ -158,15 +161,15 @@ initfn@p(T *pdev, ...) {
   ...>
 }
 
-@script:python pcount@
+@script:python pcount depends on count@
 p << count.p1;
 @@
 
 if (len(p) < 2):
     cocci.include_match(False)
 
-@new depends on probe && !have_dev && !e && pcount@
-identifier initfn;
+@new depends on probe && !have_dev && pcount@
+identifier initfn != e.initfn;
 identifier pdev;
 type ptype.T;
 position count.p;
