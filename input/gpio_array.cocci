@@ -61,7 +61,7 @@ probefn(struct platform_device *pdev)
 <+...
   err = gpio_request_array@p(pdata->gpios, pdata->nr_gpios);
   if (err) S
-  err = devm_add_action_or_reset(..., pdata);
+  err = devm_add_action_or_reset(...);
 ...+>
 }
 
