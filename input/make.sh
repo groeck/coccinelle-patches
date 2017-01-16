@@ -52,6 +52,9 @@ run cleanup
 run nomadik
 run gp2a
 
+# fix up the above
+run ../common/pdev
+
 # 2nd round of cleanup
 run ../common/goto
 run ../common/cleanup
