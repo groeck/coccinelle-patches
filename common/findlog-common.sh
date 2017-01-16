@@ -55,7 +55,8 @@ findlog_common()
 		;;
 	    "cleanup4")
 		outmsg="${outmsg}
-- Drop remove function"
+- Drop empty remove function"
+		o=1
 		;;
 	    "cleanup5" | "cleanup6")
 		# No message for now
@@ -181,7 +182,7 @@ findlog_common()
 		outmsg="${outmsg}
 - Replace devm_add_action() followed by failure action with
   devm_add_action_or_reset()"
-		o=1
+		a=1
 		;;
 	   *)
 		;;
