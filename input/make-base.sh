@@ -78,6 +78,7 @@ cleanup drivers/input/misc/88pm80x_onkey.c
 cleanup drivers/input/misc/88pm860x_onkey.c
 cleanup drivers/input/misc/arizona-haptics.c
 cleanup drivers/input/misc/atmel_captouch.c
+cleanup drivers/input/misc/cobalt_btns.c
 cleanup drivers/input/misc/da9052_onkey.c
 cleanup drivers/input/misc/da9055_onkey.c
 cleanup drivers/input/misc/da9063_onkey.c
