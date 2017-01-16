@@ -23,12 +23,13 @@ Cc: $m"
     rm -f ${tmpfile}
 }
 
-git status | grep modified: | awk '{print $2}' | while read a
+git status | grep modified: | awk '{print $2}' | while read fname
 do
-    echo "Handling $a"
-    git add $a
+    echo "Handling ${fname}"
+    git add ${fname}
 
     outmsg=""
+    a=0
     d=0
     o=0
     e=0
@@ -39,11 +40,11 @@ do
     x3=0
     x4=0
 
-    findlog_common $a
-    findlog_input $a
-    maintainers $a
+    findlog_common ${fname}
+    findlog_input ${fname}
+    maintainers ${fname}
 
-    o=$(($o + $p + $x1 + $x2 + $x3 + $x4 + $e + $r))
+    o=$(($o + $a + $p + $x1 + $x2 + $x3 + $x4 + $e + $r))
     subject=""
     msg=""
     if [ $d -ne 0 ]
@@ -76,7 +77,7 @@ driver's remove function is unnecessary and can be dropped."
 Other changes as listed below."
     fi
     git commit -s \
-	-m "Input: $(basename -s .c $a) - ${subject}" \
+	-m "Input: $(basename -s .c ${fname}) - ${subject}" \
 	-m "${msg}" \
 	-m "The conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts used
