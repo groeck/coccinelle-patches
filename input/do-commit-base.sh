@@ -39,6 +39,7 @@ do
     e=0
     o=0
     a=0
+    rf=0
 
     findlog_common ${fname}
     findlog_input ${fname}
@@ -79,36 +80,41 @@ can be dropped."
     elif [ $p -ne 0 ]
     then
 	subject="Use 'dev' instead of dereferencing it"
-	msg="Use 'dev' instead of dereferencing it several times."
+	msg="Use local variable 'dev' instead of dereferencing it several times."
 	p=0
-    elif [ ${g4} != 0 ]
+    elif [ ${g4} -ne 0 ]
     then
 	subject="Simplify error return"
 	msg="Simplify error return if the code returns anyway."
 	g4=0
-    elif [ $a != 0 ]
+    elif [ $a -ne 0 ]
     then
 	subject="Use devm_add_action_or_reset"
 	msg="Replace devm_add_action() followed by failure action with
 devm_add_action_or_reset()"
 	a=0
+    elif [ ${rf} -ne 0 ]
+    then
+	subject="Drop empty remove function"
+	msg="The remove function is empty anc can be dropped."
+	rf=0
     else
 	subject="Various cleanups"
 	msg="Various coccinelle driven transformations as detailed below."
     fi
     # secondary messages
-    smsg=""
+    smsg="Other relevant changes:"
     if [ $p -ne 0 ]
     then
 	smsg="${smsg}
-  Use 'dev' instead of dereferencing it several times."
+  Use 'dev' instead of dereferencing it several times"
     fi
-    if [ ${g4} != 0 ]
+    if [ ${g4} -ne 0 ]
     then
 	smsg="${smsg}
-  Simplify error return."
+  Simplify error return"
     fi
-    if [ $a != 0 ]
+    if [ $a -ne 0 ]
     then
 	smsg="${smsg}
   Replace devm_add_action() with devm_add_action_or_reset()"
@@ -116,17 +122,21 @@ devm_add_action_or_reset()"
     if [ $e -ne 0 ]
     then
 	smsg="${smsg}
-  Drop error messages after memory allocation failures."
+  Drop error messages after memory allocation failures"
+    fi
+    if [ $rf -ne 0 ]
+    then
+	smsg="${smsg}
+  Drop empty remove function"
     fi
 
     if [ -n "${smsg}" -o $o -ne 0 ]
     then
 	    subject="${subject} and other changes"
     fi
-    if [ -n "${smsg}" ]
+    if [ "${smsg}" != "Other relevant changes:" ]
     then
 	msg="${msg}
-Other relevant changes:
 ${smsg}"
     fi
     git commit -s \

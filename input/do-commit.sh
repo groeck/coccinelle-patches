@@ -39,12 +39,13 @@ do
     x2=0
     x3=0
     x4=0
+    rf=0
 
     findlog_common ${fname}
     findlog_input ${fname}
     maintainers ${fname}
 
-    o=$(($o + $a + $p + $x1 + $x2 + $x3 + $x4 + $e + $r))
+    o=$(($o + $a + $p + $x1 + $x2 + $x3 + $x4 + $e + $r + $rf))
     subject=""
     msg=""
     if [ $d -ne 0 ]
