@@ -41,6 +41,7 @@ run ../common/clk2
 # run ../common/of_iomap
 # run ../common/mutex_destroy
 run ../common/irq
+run ../common/action
 run ../common/pdev
 
 run ../common/drop

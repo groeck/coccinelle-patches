@@ -17,6 +17,7 @@ run ../common/pdata
 run ../common/pdev
 run ../common/goto
 run ../common/devm_kzalloc
+run ../common/action
 run ../common/cleanup
 
 if [ -n "${noclean}" ]
@@ -48,6 +49,7 @@ cleanup drivers/input/keyboard/adp5588-keys.c
 cleanup drivers/input/keyboard/adp5589-keys.c
 # cleanup drivers/input/keyboard/bcm-keypad.c	# skipped in main
 cleanup drivers/input/keyboard/davinci_keyscan.c
+cleanup drivers/input/keyboard/ep93xx_keypad.c
 cleanup drivers/input/keyboard/gpio_keys.c
 cleanup drivers/input/keyboard/gpio_keys_polled.c
 # cleanup drivers/input/keyboard/imx_keypad.c	# skipped in main
@@ -61,6 +63,7 @@ cleanup drivers/input/keyboard/qt1070.c
 cleanup drivers/input/keyboard/w90p910_keypad.c
 cleanup drivers/input/keyboard/nomadik-ske-keypad.c
 cleanup drivers/input/keyboard/nspire-keypad.c
+cleanup drivers/input/keyboard/omap4-keypad.c
 cleanup drivers/input/keyboard/opencores-kbd.c
 cleanup drivers/input/keyboard/pmic8xxx-keypad.c
 cleanup drivers/input/keyboard/pxa27x_keypad.c
