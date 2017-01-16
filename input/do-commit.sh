@@ -53,35 +53,27 @@ do
 source code size, improve readability, and reduce the likelyhood of bugs."
 	if [ $o -ne 0 ]
 	then
-		subject="${subject} and other improvements"
-		msg="${msg}
-Other improvements as listed below."
+		o=2
 	fi
     elif [ $e -ne 0 ]
     then
 	subject="Drop unnecessary error messages"
 	msg="The kernel already displays an error message after memory
 allocation failures. Messages in the driver are unnecessary."
-	if [ $o -gt 1 ]
-	then
-		subject="${subject} and other improvements"
-		msg="${msg}
-Other improvements as listed below."
-	fi
     elif [ $r -ne 0 ]
     then
 	subject="Drop unnecessary cleanup calls"
 	msg="Calling dev_set_drvdata() or device_init_wakeup() from a
 driver's remove function is unnecessary and can be dropped."
-	if [ $o -gt 1 ]
-	then
-		subject="${subject} and other improvements"
-		msg="${msg}
-Other improvements as listed below."
-	fi
     else
 	subject="Various improvements"
 	msg="Various coccinelle driven transformations as detailed below."
+    fi
+    if [ $o -gt 1 ]
+    then
+	subject="${subject} and other changes"
+	msg="${msg}
+Other changes as listed below."
     fi
     git commit -s \
 	-m "Input: $(basename -s .c $a) - ${subject}" \

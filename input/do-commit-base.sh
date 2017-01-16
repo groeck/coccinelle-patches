@@ -39,6 +39,8 @@ do
     e=0
     o=0
 
+    ho=0
+
     findlog_common $a
     findlog_input $a
     maintainers $a
@@ -69,17 +71,17 @@ do
 Drop the unnecessary call to ${xmsg}()."
 	if [ $p -ne 0 ]
 	then
-		subject="${subject} and other cleanup"
 		msg="${msg}
 Also use 'dev' instead of dereferencing it several times."
+		ho=1
 	elif [ ${g4} != 0 ]
 	then
-		subject="${subject} and other cleanup"
+		ho=1
 		msg="${msg}
 Also simplify error return."
 	elif [ $e -ne 0 ]
 	then
-		subject="${subject} and other cleanup"
+		ho=1
 		msg="${msg}
 Also drop error messages after memory allocation failures."
 	fi
@@ -91,7 +93,7 @@ Error messages after memory allocation failures are unnecessary and
 can be dropped."
 	if [ $p -ne 0 ]
 	then
-	    subject="${subject} and other cleanup"
+	    ho=1
 	    msg="${msg}
 Also use 'dev' instead of dereferencing it several times."
 	fi
@@ -106,6 +108,10 @@ Also use 'dev' instead of dereferencing it several times."
     else
 	subject="Various cleanup"
 	msg="Various coccinelle driven transformations as detailed below."
+    fi
+    if [ $ho -ne 0 -o $o -ne 0 ]
+    then
+	    subject="${subject} and other changes"
     fi
     git commit -s \
 	-m "Input: $(basename -s .c $a) - ${subject}" \
