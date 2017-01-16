@@ -146,8 +146,10 @@ static T i@p;
 
 // Remove trailing assignments if the result is not used and if the
 // expression used to calculate it does not call a function.
+// The second rule ensures that i != j. There should be (and probably is)
+// a better way to do that.
 
-@trailing depends on probe@
+@need_trailing depends on probe@
 identifier fn;
 identifier i;
 identifier j;
@@ -158,19 +160,31 @@ position p != ex.p;
 position p1;
 @@
 
-fn@p1(...)
+fn(...)
 {
   ...
   T i@p;
-<+...
+<...
 (
   i = <+... f(...) ...+>;
-|
-- i = E;
-)
   return j;
-  ...+>
+|
+  i = E;
+  return i;
+|
+  i@p1 = E;
+  return j;
+)
+  ...>
 }
+
+@trailing depends on need_trailing@
+identifier i;
+expression E;
+position need_trailing.p1;
+@@
+
+- i@p1 = E;
 
 @unnecessary_brackets depends on probe@
 expression e1, e2;
@@ -248,7 +262,7 @@ p << remove.pos;
 print >> f, "%s:cleanup6:%s" % (p[0].file, p[0].line)
 
 @script:python depends on trailing@
-p << trailing.p1;
+p << need_trailing.p1;
 @@
 
 print >> f, "%s:cleanup7:%s" % (p[0].file, p[0].line)
