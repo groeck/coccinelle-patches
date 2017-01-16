@@ -177,6 +177,12 @@ findlog_common()
 - Drop error message after devm_kzalloc() failure"
 		e=1
 		;;
+	    "action1" | "action2")
+		outmsg="${outmsg}
+- Replace devm_add_action() followed by failure action with
+  devm_add_action_or_reset()"
+		o=1
+		;;
 	   *)
 		;;
 	   esac
