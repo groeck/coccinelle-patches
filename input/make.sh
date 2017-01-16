@@ -20,6 +20,9 @@ run keypad
 run gpio_array
 run pxa_ssp
 run mcs_touchkey
+run ep93xx_keypad
+run nomadik
+run gp2a
 
 run ../common/worker
 run ../common/ioremap_resource
@@ -49,11 +52,6 @@ run ../common/pdata
 
 # input specific cleanup
 run cleanup
-run nomadik
-run gp2a
-
-# fix up the above
-run ../common/pdev
 
 # 2nd round of cleanup
 run ../common/goto
@@ -97,8 +95,8 @@ cleanup()
 # cleanup drivers/input/keyboard/adp5520-keys.c	# cosmetic (err msg)
 cleanup drivers/input/keyboard/bcm-keypad.c	# bad clk_prepare_enable hndl
 cleanup drivers/input/keyboard/bf54x-keys.c	# peripheral_free_list
-cleanup drivers/input/keyboard/ep93xx_keypad.c	# ep93xx_keypad_release_gpio,
-						# conditional clk_disable
+# cleanup drivers/input/keyboard/ep93xx_keypad.c # conditional clk_disable
+						# should be ok
 cleanup drivers/input/keyboard/imx_keypad.c	# bad clk_prepare_enable hndl 
 # cleanup drivers/input/keyboard/gpio_keys.c	# cosmetic (err msg)
 # cleanup drivers/input/keyboard/gpio_keys_polled.c # cosmetic (err msg)
