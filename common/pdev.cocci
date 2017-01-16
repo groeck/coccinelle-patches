@@ -81,7 +81,7 @@ p << countprb.p1;
 if (len(p) < 2):
     cocci.include_match(False)
 
-@script:python depends on countprb@
+@script:python depends on pcountprb@
 p << e.p;
 @@
 
