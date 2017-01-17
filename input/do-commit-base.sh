@@ -1,5 +1,4 @@
 basedir=$(cd $(dirname $0); pwd)
-patchdir=${basedir}/patches
 
 . ${basedir}/../common/findlog-common.sh
 . ${basedir}/findlog-input.sh
@@ -148,42 +147,4 @@ used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches" \
 -m "${outmsg}" \
 -m "${cc}"
-    pfile=""
-    case "${fname}" in
-    "drivers/input/keyboard/ipaq-micro-keys.c")
-	pfile="0001-drivers-input-keyboard-ipaq-micro-keys.c-fixup.patch"
-	;;
-    "drivers/input/misc/adxl34x-i2c.c")
-	pfile="0002-drivers-input-misc-adxl34x-i2c.c-fixup.patch"
-	;;
-    "drivers/input/misc/tps65218-pwrbutton.c")
-	pfile="0003-drivers-input-misc-tps65218-pwrbutton.c-fixup.patch"
-	;;
-    "drivers/input/mouse/elan_i2c_core.c")
-	pfile="0004-drivers-input-mouse-elan_i2c_core.c-fixup.patch"
-	;;
-    "drivers/input/touchscreen/ad7879-spi.c")
-	pfile="0005-drivers-input-touchscreen-ad7879-spi.c-fixup.patch"
-	;;
-    "drivers/input/misc/soc_button_array.c")
-	pfile="0001-drivers-input-misc-soc_button_array.c-fixup.patch"
-	;;
-    *)
-	;;
-    esac
-    if [ -n "${pfile}" ]
-    then
-	cp ${fname} ${fname}.save
-	echo "Applying fixup patch ${patchdir}/${pfile} to ${fname}"
-	patch -p 1 < ${patchdir}/${pfile}
-	if [ $? -ne 0 ]
-	then
-	    echo "Warning: Patching ${fname} with ${patchdir}/${pfile} failed"
-	    mv ${fname}.save ${fname}
-	else
-	    git add ${fname}
-	    git commit --amend --no-edit
-	    rm -f ${fname}.save
-	fi
-    fi
 done

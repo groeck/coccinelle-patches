@@ -1,5 +1,6 @@
 subdir=${1:-drivers/input}
 basedir=$(cd $(dirname $0); pwd)
+patchdir=${basedir}/patches.base
 
 noclean=$2
 
@@ -19,6 +20,12 @@ run ../common/goto
 run ../common/devm_kzalloc
 run ../common/action
 run ../common/cleanup
+
+for p in $(cd ${patchdir}; ls)
+do
+	echo "applying $p"
+	patch -p 1 < ${patchdir}/$p
+done
 
 if [ -n "${noclean}" ]
 then
