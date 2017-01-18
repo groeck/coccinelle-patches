@@ -16,6 +16,7 @@ run()
 
 run ../common/pdata
 run ../common/pdev
+run ../common/deref
 run ../common/goto
 run ../common/devm_kzalloc
 run ../common/action

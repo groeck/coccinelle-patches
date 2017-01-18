@@ -43,6 +43,7 @@ run ../common/clk2
 run ../common/irq
 run ../common/action
 run ../common/pdev
+run ../common/deref
 
 run ../common/drop
 
