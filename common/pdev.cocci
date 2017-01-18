@@ -55,7 +55,7 @@ initfn@p(T *pdev, ...) {
 // Assume that we need to apply the rule if the dev variable exists
 // and if pdev->dev is dereferenced at least twice.
 
-@countprb depends on e@
+@countprb depends on e exists@
 identifier initfn;
 identifier pdev;
 type ptype.T;
@@ -77,21 +77,6 @@ initfn@p(T *pdev, ...) {
   ...>
 }
 
-@script:python pcountprb@
-p << countprb.p1;
-@@
-
-if (len(p) < 1):
-    cocci.include_match(False)
-
-@script:python depends on countprb && pcountprb@
-p << countprb.p1;
-@@
-
-print >> f, "%s:pdev1:%s:%d" % (p[0].file, p[0].line, len(p))
-
-// Use existing 'struct device *' variable for transformations if available
-
 @prb depends on countprb@
 identifier e.d;
 identifier initfn;
@@ -99,6 +84,7 @@ identifier e.pdev;
 position e.p;
 type ptype.T;
 identifier i;
+position p1;
 @@
 
 initfn@p(T *pdev, ...) {
@@ -106,21 +92,33 @@ initfn@p(T *pdev, ...) {
   struct device *d = &pdev->dev;
 <...
 (
-- &pdev->dev
+- &pdev@p1->dev
 + d
 |
-- pdev->dev.i
+- pdev@p1->dev.i
 + dev->i
 )
 ...> }
 
-// formatting cleanup
+// logging and formatting cleanup
+
+@script:python depends on prb@
+p << e.p;
+p1 << prb.p1;
+@@
+
+print >> f, "%s:pdev1:%s:%d" % (p[0].file, p[0].line, len(p1))
 
 @depends on prb@
 identifier e.d;
 identifier fn != dev_name;
 expression list es;
+identifier prb.initfn;
 @@
 
+  initfn(...) {
+  <...
 - fn(d, es)
 + fn(d, es)
+  ...>
+  }
