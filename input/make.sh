@@ -15,7 +15,7 @@ run()
 
 run devm
 run serio
-run errmsg
+# run errmsg
 run keypad
 run gpio_array
 run pxa_ssp
@@ -29,7 +29,7 @@ run ../common/ioremap_resource
 run ../common/ioremap_resource_assigned
 run ../common/ioremap
 run ../common/kzalloc
-run ../common/devm_kzalloc
+# run ../common/devm_kzalloc
 run ../common/gpio
 run ../common/clk_get
 run ../common/timer
