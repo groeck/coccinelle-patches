@@ -37,6 +37,19 @@ cleanup()
 	rm $1; git checkout $1
 }
 
+# truly cosmetic
+cleanup drivers/input/keyboard/goldfish_events.c
+cleanup drivers/input/keyboard/mpr121_touchkey.c
+cleanup drivers/input/mouse/synaptics_i2c.c
+cleanup drivers/input/rmi4/rmi_smbus.c
+cleanup drivers/input/rmi4/rmi_spi.c
+cleanup drivers/input/touchscreen/ad7877.c
+cleanup drivers/input/touchscreen/ads7846.c
+cleanup drivers/input/touchscreen/bu21013_ts.c
+cleanup drivers/input/touchscreen/jornada720_ts.c
+cleanup drivers/input/touchscreen/st1232.c
+cleanup drivers/input/touchscreen/surface3_spi.c
+
 # The following patches are bad, unrelated, or problematic
 
 cleanup drivers/input/touchscreen/tps6507x-ts.c

@@ -50,77 +50,83 @@ initfn@p(T *pdev, ...) {
   ...+>
 }
 
-// Do some reference counting. this is needed because otherwise
-// it is difficult to determine if the rule was applied or not.
-// Assume that we need to apply the rule if the dev variable exists
-// and if pdev->dev is dereferenced at least twice.
+// Make sure that a variable named 'dev' does not already exist.
 
-@countprb depends on e@
+@script:python expected@
+dev;
+@@
+coccinelle.dev = 'dev'
+
+@have_dev depends on probe exists@
 identifier initfn;
+identifier expected.dev;
+identifier pdev;
+type ptype.T;
+position p;
+@@
+
+  initfn@p(T *pdev, ...)
+  {
+  ...
+  dev
+  ... when any
+  }
+
+@count@
+identifier initfn != have_dev.initfn;
 identifier pdev;
 type ptype.T;
 position p;
 position p1;
-identifier i;
-identifier d;
 @@
 
 initfn@p(T *pdev, ...) {
-  ...
-  struct device *d = &pdev->dev;
   <...
-(
   &pdev@p1->dev
-|
-  pdev@p1->dev.i
-)
   ...>
 }
 
-@script:python pcountprb@
-p << countprb.p1;
+@script:python pcount depends on count@
+p << count.p1;
 @@
 
-if (len(p) < 1):
+if (len(p) < 2):
     cocci.include_match(False)
 
-@script:python depends on countprb && pcountprb@
-p << countprb.p1;
-@@
-
-print >> f, "%s:pdev1:%s:%d" % (p[0].file, p[0].line, len(p))
-
-// Use existing 'struct device *' variable for transformations if available
-
-@prb depends on countprb@
-identifier e.d;
-identifier initfn;
-identifier e.pdev;
-position e.p;
+@new depends on probe && !have_dev && pcount@
+identifier initfn != e.initfn;
+identifier pdev;
 type ptype.T;
+position count.p;
 identifier i;
 @@
 
-initfn@p(T *pdev, ...) {
-  ...
-  struct device *d = &pdev->dev;
-<...
+  initfn@p(T *pdev, ...) {
++ struct device *dev = &pdev->dev;
+  <...
 (
 - &pdev->dev
-+ d
++ dev
 |
 - pdev->dev.i
 + dev->i
 )
-...> }
+  ...>
+}
+
+@script:python depends on new@
+p << count.p;
+@@
+
+print >> f, "%s:pdev2:%s" % (p[0].file, p[0].line)
 
 // formatting cleanup
 
-@depends on prb@
-identifier e.d;
+@depends on new@
 identifier fn != dev_name;
 expression list es;
+identifier expected.dev;
 @@
 
-- fn(d, es)
-+ fn(d, es)
+- fn(dev, es)
++ fn(dev, es)
