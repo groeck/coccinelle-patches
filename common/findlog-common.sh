@@ -158,6 +158,10 @@ findlog_common()
   dereferencing it repeatedly"
 		p=2
 		;;
+	   "deref1")
+		outmsg="${outmsg}
+- Use local structure pointers consistently"
+		;;
 	   "timer1")
 		outmsg="${outmsg}
 - Call del_timer() using devm_add_action()"
