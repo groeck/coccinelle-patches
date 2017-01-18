@@ -158,9 +158,9 @@ expression e, e1;
 
 initfn(...) {
 <+...
-  if (\(e\|e<0\|e>0\|e!=e1\))
+  if (\(e\|e!=0\|e!=e1\))
       return e;
-  return \(0\|e\);
+  return 0;
 ...+> }
 
 @extra_return depends on probe && er_needed@
@@ -170,9 +170,9 @@ expression e, e1;
 
 initfn(...) {
 <...
-- if (\(e\|e<0\|e>0\|e!=e1\))
+- if (\(e\|e!=0\|e!=e1\))
 -     return e;
-- return \(0\|e\);
+- return 0;
 + return e;
 ...> }
 
