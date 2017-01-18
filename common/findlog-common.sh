@@ -51,7 +51,7 @@ findlog_common()
 		;;
 	    "cleanup3")
 		outmsg="${outmsg}
-- Replace 'if (e) { return expr; }' with 'if (e) return expr;'"
+- Drop unnecessary braces around conditional return statements"
 		;;
 	    "cleanup4")
 		outmsg="${outmsg}
