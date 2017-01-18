@@ -106,7 +106,7 @@ devm_add_action_or_reset()"
     if [ $p -ne 0 ]
     then
 	smsg="${smsg}
-  Use 'dev' instead of dereferencing it several times"
+  Use existing variable 'dev' instead of dereferencing it several times"
     fi
     if [ ${g4} -ne 0 ]
     then
