@@ -11,7 +11,7 @@ maintainers()
 
     cc=""
 
-    scripts/get_maintainer.pl --no-l --no-rolestats ${file} | \
+    scripts/get_maintainer.pl --no-l --nogit-fallback --no-rolestats ${file} | \
 	egrep -v "Dmitry Torokhov|Guenter Roeck|Support Opensource|bcm-kernel-feedback-list" > ${tmpfile}
 
     while read -r m
