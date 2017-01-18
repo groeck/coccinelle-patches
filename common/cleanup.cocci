@@ -190,10 +190,27 @@ position need_trailing.p1;
 
 - i@p1 = E;
 
-@unnecessary_brackets depends on probe@
+@u1 depends on probe@
 expression e1, e2;
+position p0, p1, p2;
 @@
-  if (e1)
+  if@p0 (e1) { return e2@p1; }
+
+// Only remove brackets for single-line expressions.
+
+@script:python u2 depends on u1@
+p0 << u1.p0;
+p1 << u1.p1;
+@@
+
+if (int(p1[0].line_end) > int(p0[0].line) + 1):
+    cocci.include_match(False)
+
+@unnecessary_brackets depends on probe && u2@
+expression e1, e2;
+position u1.p0;
+@@
+  if@p0 (e1)
 - {
     return e2;
 - }
