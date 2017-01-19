@@ -59,6 +59,9 @@ cleanup drivers/input/mouse/elan_i2c_core.c
 run ../common/pdev
 run ../common/deref
 
+# Still drop this one
+cleanup drivers/input/touchscreen/rohm_bu21023.c
+
 # The following patches are duplicates with the full set of changes
 
 cleanup drivers/input/keyboard/davinci_keyscan.c
