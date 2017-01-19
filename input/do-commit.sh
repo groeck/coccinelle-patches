@@ -67,6 +67,10 @@ allocation failures. Messages in the driver are unnecessary."
 	subject="Drop unnecessary cleanup calls"
 	msg="Calling dev_set_drvdata() or device_init_wakeup() from a
 driver's remove function is unnecessary and can be dropped."
+    elif [ $p -ne 0 ]
+    then
+	subject="Use 'dev' instead of dereferencing it"
+	msg="Use local variable 'dev' instead of dereferencing it several times."
     else
 	subject="Various improvements"
 	msg="Various coccinelle driven transformations as detailed below."
