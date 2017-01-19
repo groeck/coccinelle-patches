@@ -74,7 +74,10 @@ fi
 
 cleanup()
 {
-	rm $1; git checkout $1
+	if [ -e $1 ]
+	then
+		rm $1; git checkout $1
+	fi
 }
 
 # drivers/input/keyboard/adp5588-keys.c
@@ -92,7 +95,17 @@ cleanup()
 #			data->poweron(false);
 #	-> mcs_touchkey.cocci
 
-# cosmetic in base, should be cosmetic here as well.
+# rejected in base
+
+cleanup drivers/input/misc/axp20x-pek.c
+cleanup drivers/input/mouse/cyapa.c
+cleanup drivers/input/touchscreen/atmel_mxt_ts.c
+cleanup drivers/input/touchscreen/elants_i2c.c
+cleanup drivers/input/touchscreen/melfas_mip4.c
+cleanup drivers/input/touchscreen/raydium_i2c_ts.c
+cleanup drivers/input/touchscreen/rohm_bu21023.c
+
+# cosmetic
 
 cleanup drivers/input/keyboard/goldfish_events.c
 cleanup drivers/input/keyboard/mpr121_touchkey.c
@@ -105,6 +118,13 @@ cleanup drivers/input/touchscreen/bu21013_ts.c
 cleanup drivers/input/touchscreen/jornada720_ts.c
 cleanup drivers/input/touchscreen/st1232.c
 cleanup drivers/input/touchscreen/surface3_spi.c
+
+cleanup drivers/input/keyboard/cap11xx.c
+cleanup drivers/input/keyboard/sun4i-lradc-keys.c
+cleanup drivers/input/touchscreen/88pm860x-ts.c
+cleanup drivers/input/touchscreen/auo-pixcir-ts.c
+cleanup drivers/input/touchscreen/max11801_ts.c
+cleanup drivers/input/touchscreen/sx8654.c
 
 # The following patches are known to be broken, problematic, or cosmetic
 
@@ -124,17 +144,20 @@ cleanup drivers/input/keyboard/omap-keypad.c	# device_remove_file, gpio_free,
 						# ...
 # cleanup drivers/input/keyboard/omap4-keypad.c	# pm, device_init_wakeup
 						# cleanup reorder should be safe
+cleanup drivers/input/keyboard/pxa27x_keypad.c	# cosmetic
 cleanup drivers/input/keyboard/samsung-keypad.c	# various
 cleanup drivers/input/keyboard/sh_keysc.c	# pwm
 cleanup drivers/input/keyboard/spear-keyboard.c	# clk_prepare/clk_unprepare,
 						# input_unregister_device called
 						# even though devm_input_allocate_device
 						# is already used
+cleanup drivers/input/keyboard/tc3589x-keypad.c	# cosmetic
 cleanup drivers/input/keyboard/tca6416-keypad.c	# irq handling 
 # cleanup drivers/input/misc/88pm80x_onkey.c	# irq handling
 						# should be ok (released first)
 cleanup drivers/input/misc/bfin_rotary.c	# cosmetic
 cleanup drivers/input/misc/bma150.c		# various
+cleanup drivers/input/misc/drv2667.c		# cosmetic
 cleanup drivers/input/misc/ixp4xx-beeper.c	# removal complexity
 cleanup drivers/input/misc/kxtj9.c		# complex
 cleanup drivers/input/misc/m68kspkr.c		# cleanup sequence
@@ -168,9 +191,11 @@ cleanup drivers/input/touchscreen/atmel_mxt_ts.c # wrong
 cleanup drivers/input/touchscreen/bu21013_ts.c	# regulator
 cleanup drivers/input/touchscreen/chipone_icn8318.c # cosmetic
 cleanup drivers/input/touchscreen/cy8ctmg110_ts.c # removal complexity
+cleanup drivers/input/touchscreen/da9034-ts.c	# cosmetic
 cleanup drivers/input/touchscreen/eeti_ts.c	# free_irq followed by enable_irq
 cleanup drivers/input/touchscreen/egalax_ts.c	# cosmetic, wrong in egalax_wake_up_device
 cleanup drivers/input/touchscreen/ektf2127.c	# cosmetic
+cleanup drivers/input/touchscreen/goodix.c	# cosmetic
 cleanup drivers/input/touchscreen/ili210x.c	# missed free_irq
 cleanup drivers/input/touchscreen/mainstone-wm97xx.c # cosmetic
 cleanup drivers/input/touchscreen/raydium_i2c_ts.c # wrong
