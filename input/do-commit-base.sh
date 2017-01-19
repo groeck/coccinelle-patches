@@ -11,7 +11,7 @@ maintainers()
 
     cc=""
 
-    scripts/get_maintainer.pl --no l --nogit-fallback --no-rolestats ${file} | \
+    scripts/get_maintainer.pl --no-l --nogit-fallback --no-rolestats ${file} | \
 	egrep -v "Dmitry Torokhov|Support Opensource" > ${tmpfile}
 
     while read -r m
@@ -39,10 +39,12 @@ do
     o=0
     a=0
     rf=0
+    dr=0
 
     findlog_common ${fname}
     findlog_input ${fname}
     maintainers ${fname}
+
     subject=""
     msg=""
     xmsg=""
@@ -69,17 +71,15 @@ do
 	subject="Drop unnecessary call to ${xmsg}"
 	msg="There is no call to ${xmsg1}() or dev_get_drvdata().
 Drop the unnecessary call to ${xmsg}()."
-    elif [ $e -ne 0 ]
-    then
-	subject="Drop unnecessary error messages"
-	msg="${msg}
-Error messages after memory allocation failures are unnecessary and
-can be dropped."
-	e=0
     elif [ $p -ne 0 ]
     then
 	subject="Use 'dev' instead of dereferencing it"
 	msg="Use local variable 'dev' instead of dereferencing it several times."
+	p=0
+    elif [ $dr -ne 0 ]
+    then
+	subject="Use local structure pointers"
+	msg="Use available local structure pointers to access structure elements."
 	p=0
     elif [ ${g4} -ne 0 ]
     then
@@ -92,11 +92,6 @@ can be dropped."
 	msg="Replace devm_add_action() followed by failure action with
 devm_add_action_or_reset()"
 	a=0
-    elif [ ${rf} -ne 0 ]
-    then
-	subject="Drop empty remove function"
-	msg="The remove function is empty anc can be dropped."
-	rf=0
     else
 	subject="Various cleanups"
 	msg="Various coccinelle driven transformations as detailed below."
@@ -129,10 +124,6 @@ devm_add_action_or_reset()"
   Drop empty remove function"
     fi
 
-    if [ -n "${smsg}" -o $o -ne 0 ]
-    then
-	    subject="${subject} and other changes"
-    fi
     if [ "${smsg}" != "Other relevant changes:" ]
     then
 	msg="${msg}
@@ -141,10 +132,8 @@ ${smsg}"
     git commit -s \
 	-m "Input: $(basename -s .c ${fname}) - ${subject}" \
 	-m "${msg}" \
-	-m "This conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts
-used to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches" \
--m "${outmsg}" \
+	-m "This conversion was done automatically with coccinelle.
+The semantic patches and the scripts used to generate this commit log
+are available at https://github.com/groeck/coccinelle-patches." \
 -m "${cc}"
 done
