@@ -161,6 +161,7 @@ findlog_common()
 	   "deref1")
 		outmsg="${outmsg}
 - Use local structure pointers consistently"
+		dr=1
 		;;
 	   "timer1")
 		outmsg="${outmsg}
