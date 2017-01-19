@@ -113,13 +113,29 @@ initfn(...) {
   l1: return e;
 ...+> }
 
+@ftype depends on probe@
+type T;
+identifier fn;
+position p;
+@@
+
+  T fn@p(...) { ... }
+
+@script:python depends on ftype@
+T << ftype.T;
+@@
+
+if T != "irqreturn_t":
+    cocci.include_match(False)
+
 @direct_return2 depends on probe && dr2_needed@
 identifier initfn;
 identifier l1;
 expression e;
+position p != ftype.p;
 @@
 
-initfn(...) {
+initfn@p(...) {
 <...
 - goto l1;
 + return e;
