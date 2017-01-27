@@ -25,75 +25,62 @@ declarer name module_platform_driver_probe;
   };
 )
 
-// Try to find situations where a local structure variable dereferences another
-// structure variable, then try to find situations where the original structure
-// variable is used anyway.
-// Note: This will miss situations where d is subsequently reassigned.
+// Catch function parameters.
+// Handle those first to trigger reformatting.
 
-@check depends on probe exists@
-identifier initfn;
-identifier svar, elem;
-type T;
-position p;
-identifier i;
+@prb depends on probe@
 identifier d;
+identifier svar;
+identifier elem;
+position p;
+type T;
+expression e;
+expression list es;
+identifier fn;
 @@
 
-initfn@p(...) {
-  ...
-  T d = &svar->elem;
-  <+...
-(
-  &svar->elem
-|
-  svar->elem.i
-)
-  ...+>
-}
-
-@prb depends on check@
-identifier check.d;
-identifier initfn;
-identifier check.svar;
-identifier check.elem;
-position check.p;
-type check.T;
-identifier i;
-position p1;
-@@
-
-initfn@p(...) {
-  ...
-  T d = &svar->elem;
+  T d@p = &svar->elem;
 <...
-(
-- &svar@p1->elem
-+ d
-|
-- svar@p1->elem.i
-+ d->i
-)
-...> }
-
-// logging and formatting cleanup
+- fn(&svar->elem, es)
++ fn(d, es)
+...>
+? d = e;
 
 @script:python depends on prb@
-p << check.p;
-p1 << prb.p1;
+p << prb.p;
 @@
 
-print >> f, "%s:deref1:%s:%d" % (p[0].file, p[0].line, len(p1))
+print >> f, "%s:deref1:%s:%d" % (p[0].file, p[0].line, len(p))
 
-@depends on prb@
-identifier check.d;
-identifier fn != dev_name;
-expression list es;
-identifier prb.initfn;
+// Now address non-functions and multiple transformations in function
+// parameters.
+
+@prb2 depends on probe@
+identifier d;
+identifier svar;
+identifier elem;
+type T;
+identifier i;
+expression e;
+position p;
 @@
 
-  initfn(...) {
+  T d@p = &svar->elem;
   <...
-- fn(d, es)
-+ fn(d, es)
+(
+- &svar->elem
++ d
+|
+- svar->elem.i
++ d->i
+)
   ...>
-  }
+? d = e;
+
+// logging
+
+@script:python depends on prb2@
+p << prb2.p;
+@@
+
+print >> f, "%s:deref1:%s:%d" % (p[0].file, p[0].line, len(p))
