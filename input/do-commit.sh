@@ -71,6 +71,11 @@ driver's remove function is unnecessary and can be dropped."
     then
 	subject="Use 'dev' instead of dereferencing it"
 	msg="Use local variable 'dev' instead of dereferencing it several times."
+    elif [ $a -ne 0 ]
+    then
+	subject="Replace devm_add_action with devm_add_action_or_reset"
+	msg="Replace devm_add_action() followed by failure action with
+devm_add_action_or_reset()"
     else
 	subject="Various improvements"
 	msg="Various coccinelle driven transformations as detailed below."
