@@ -80,6 +80,12 @@ cleanup()
 	fi
 }
 
+# Drop patches addressing clk_prepare_enable/clk_disable_unprepare.
+# Those will hopefully be taken care of at a later time, after
+# devm_clk_prepare_enable() has been introduced.
+
+cleanup drivers/input/keyboard/nomadik-ske-keypad.c
+
 # drivers/input/keyboard/adp5588-keys.c
 #	adp5588_gpio_remove
 #   	->  Not really needed because adp5588_gpio_add() is called last
@@ -94,6 +100,10 @@ cleanup()
 #		if (data->poweron)
 #			data->poweron(false);
 #	-> mcs_touchkey.cocci
+
+# low value
+
+cleanup drivers/input/serio/apbps2.c
 
 # rejected in base
 
@@ -125,6 +135,8 @@ cleanup drivers/input/touchscreen/88pm860x-ts.c
 cleanup drivers/input/touchscreen/auo-pixcir-ts.c
 cleanup drivers/input/touchscreen/max11801_ts.c
 cleanup drivers/input/touchscreen/sx8654.c
+
+cleanup drivers/input/misc/retu-pwrbutton.c
 
 # The following patches are known to be broken, problematic, or cosmetic
 
