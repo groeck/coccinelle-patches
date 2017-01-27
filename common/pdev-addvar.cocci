@@ -90,7 +90,7 @@ initfn@p(T *pdev, ...) {
 p << count.p1;
 @@
 
-if (len(p) < 2):
+if (len(p) < 3):
     cocci.include_match(False)
 
 @new depends on probe && !have_dev && pcount@
