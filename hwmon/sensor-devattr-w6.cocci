@@ -42,13 +42,22 @@ x_show;
 x_store;
 func;
 @@
-coccinelle.func = re.sub('show_|get_|_show|_get|_read', '', show)
-coccinelle.x_show = re.sub('show_|get_|_show|_get|_read', '', show) + "_show"
-coccinelle.x_store = re.sub('show_|get_|_get|_show|_read', '', show) + "_store"
+if re.match('.+_(show|get|read)_.+',show):
+    coccinelle.func = re.sub('_show_|_get_|_read_', '_', show)
+    coccinelle.x_show = re.sub('_show_|_get_|_read_', '_', show) + "_show"
+    coccinelle.x_store = re.sub('_show_|_get_|_read_', '_', show) + "_store"
+else:
+    coccinelle.func = re.sub('^show_|^get_|_show$|_get$|_read$', '', show)
+    coccinelle.x_show = re.sub('^show_|^get_|_show$|_get$|_read$', '', show) + "_show"
+    coccinelle.x_store = re.sub('^show_|^get_|_get$|_show$|_read$', '', show) + "_store"
 
 if show == "NULL":
-    coccinelle.x_store = re.sub('store_|set_|_set|_store|_write|_reset', '', store) + "_store"
-    coccinelle.func = re.sub('store_|set_|_store|_set|_write|_reset', '', store)
+  if re.match('.+_(store|set|write|reset)_.+',store):
+    coccinelle.func = re.sub('_store_|_set_|_write_|_reset_', '_', store)
+    coccinelle.x_store = re.sub('_store_|_set_|_write_|_reset_', '_', store) + "_store"
+  else:
+    coccinelle.func = re.sub('^store_|^set_|_store$|_set$|_write$|_reset$', '', store)
+    coccinelle.x_store = re.sub('^store_|^set_|_set$|_store$|_write$|_reset$', '', store) + "_store"
 
 @@
 identifier d.x,expected.x_show,expected.func;
