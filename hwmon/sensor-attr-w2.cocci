@@ -16,7 +16,6 @@ import re
 @d@
 identifier x,show,store;
 expression p;
-identifier SENSOR_ATTR,SENSOR_ATTR_2;
 @@
 
 (
@@ -37,18 +36,26 @@ x_show;
 x_store;
 func;
 @@
-coccinelle.func = re.sub('show_|get_|_show|_get|_read', '', show)
-coccinelle.x_show = re.sub('show_|get_|_show|_get|_read', '', show) + "_show"
-coccinelle.x_store = re.sub('show_|get_|_get|_show|_read', '', show) + "_store"
+if re.match('.+_(show|get|read)_.+',show):
+    coccinelle.func = re.sub('_show_|_get_|_read_', '_', show)
+    coccinelle.x_show = re.sub('_show_|_get_|_read_', '_', show) + "_show"
+    coccinelle.x_store = re.sub('_show_|_get_|_read_', '_', show) + "_store"
+else:
+    coccinelle.func = re.sub('^show_|^get_|_show$|_get$|_read$', '', show)
+    coccinelle.x_show = re.sub('^show_|^get_|_show$|_get$|_read$', '', show) + "_show"
+    coccinelle.x_store = re.sub('^show_|^get_|_get$|_show$|_read$', '', show) + "_store"
 
 if show == "NULL":
-    coccinelle.x_store = re.sub('store_|set_|_set|_store|_write|_reset', '', store) + "_store"
-    coccinelle.func = re.sub('store_|set_|_store|_set|_write|_reset', '', store)
+  if re.match('.+_(store|set|write|reset)_.+',store):
+    coccinelle.func = re.sub('_store_|_set_|_write_|_reset_', '_', store)
+    coccinelle.x_store = re.sub('_store_|_set_|_write_|_reset_', '_', store) + "_store"
+  else:
+    coccinelle.x_store = re.sub('^store_|^set_|_set$|_store$|_write$|_reset$', '', store) + "_store"
+    coccinelle.func = re.sub('^store_|^set_|_store$|_set$|_write$|_reset$', '', store)
 
 @@
 identifier d.x,expected.x_show,expected.func;
 expression e;
-identifier SENSOR_ATTR;
 @@
 
 - SENSOR_ATTR(x, \(0444\|S_IRUGO\), x_show, NULL, e)
@@ -57,7 +64,6 @@ identifier SENSOR_ATTR;
 @@
 identifier d.x,expected.x_show,expected.x_store,expected.func;
 expression e;
-identifier SENSOR_ATTR;
 @@
 
 - SENSOR_ATTR(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store, e)
@@ -66,7 +72,6 @@ identifier SENSOR_ATTR;
 @@
 identifier d.x,expected.x_show,expected.func;
 expression e1, e2;
-identifier SENSOR_ATTR_2;
 @@
 
 - SENSOR_ATTR_2(x, \(0444\|S_IRUGO\), x_show, NULL, e1, e2)
@@ -75,7 +80,6 @@ identifier SENSOR_ATTR_2;
 @@
 identifier d.x,expected.x_show,expected.x_store,expected.func;
 expression e1, e2;
-identifier SENSOR_ATTR_2;
 @@
 
 - SENSOR_ATTR_2(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store, e1, e2)
@@ -87,7 +91,6 @@ identifier SENSOR_ATTR_2;
 @o@
 identifier d.x,show,store;
 expression list es;
-identifier SENSOR_ATTR,SENSOR_ATTR_2;
 @@
 
 (
