@@ -1,0 +1,39 @@
+virtual patch
+
+@@
+@@
+
+(
+- S_IFREG | S_IRUGO | S_IWUGO
++ S_IFREG | 0666
+|
+- S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
++ 0644
+|
+- S_IRUSR|S_IWUSR
++ 0600
+|
+- S_IRUGO|S_IWUSR
++ 0644
+|
+- S_IWUSR|S_IRUGO
++ 0644
+|
+- S_IRUGO|S_IWUGO
++ 0666
+|
+- S_IWUGO|S_IRUGO
++ 0666
+|
+- S_IRUSR
++ 0400
+|
+- S_IRUGO
++ 0444
+|
+- S_IWUGO
++ 0222
+|
+- S_IWUSR
++ 0200
+)
