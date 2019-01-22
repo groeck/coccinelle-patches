@@ -14,7 +14,8 @@ import re
 // Easy case
 
 @d@
-identifier x,show,store;
+expression x;
+identifier show,store;
 expression p;
 @@
 
@@ -54,7 +55,8 @@ if show == "NULL":
     coccinelle.func = re.sub('^store_|^set_|_store$|_set$|_write$|_reset$', '', store)
 
 @@
-identifier d.x,expected.x_show,expected.func;
+expression d.x;
+identifier expected.x_show,expected.func;
 expression e;
 @@
 
@@ -62,7 +64,8 @@ expression e;
 + SENSOR_ATTR_RO(x, func, e)
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+expression d.x;
+identifier expected.x_show,expected.x_store,expected.func;
 expression e;
 @@
 
@@ -70,7 +73,8 @@ expression e;
 + SENSOR_ATTR_RW(x, func, e)
 
 @@
-identifier d.x,expected.x_show,expected.func;
+expression d.x;
+identifier expected.x_show,expected.func;
 expression e1, e2;
 @@
 
@@ -78,7 +82,8 @@ expression e1, e2;
 + SENSOR_ATTR_2_RO(x, func, e1, e2)
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+expression d.x;
+identifier expected.x_show,expected.x_store,expected.func;
 expression e1, e2;
 @@
 
@@ -89,7 +94,8 @@ expression e1, e2;
 // Other calls
 
 @o@
-identifier d.x,show,store;
+expression d.x;
+identifier show,store;
 expression list es;
 @@
 
@@ -159,7 +165,8 @@ identifier o.store,expected.x_store;
 // try again
 
 @@
-identifier d.x,expected.x_show,expected.func;
+expression d.x;
+identifier expected.x_show,expected.func;
 expression e;
 identifier SENSOR_ATTR;
 @@
@@ -168,7 +175,8 @@ identifier SENSOR_ATTR;
 + SENSOR_ATTR_RO(x, func, e)
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+expression d.x;
+identifier expected.x_show,expected.x_store,expected.func;
 expression e;
 identifier SENSOR_ATTR;
 @@
@@ -177,7 +185,8 @@ identifier SENSOR_ATTR;
 + SENSOR_ATTR_RW(x, func, e)
 
 @@
-identifier d.x,expected.x_show,expected.func;
+expression d.x;
+identifier expected.x_show,expected.func;
 expression e1, e2;
 identifier SENSOR_ATTR_2;
 @@
@@ -186,7 +195,8 @@ identifier SENSOR_ATTR_2;
 + SENSOR_ATTR_2_RO(x, func, e1, e2)
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+expression d.x;
+identifier expected.x_show,expected.x_store,expected.func;
 expression e1, e2;
 identifier SENSOR_ATTR_2;
 @@
