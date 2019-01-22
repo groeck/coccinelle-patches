@@ -16,7 +16,9 @@ run()
 	MODE=patch M=$2 | patch -p 1
 }
 
-sed -i -e '/#define [a-z]/,/[^\\]$/d' $1
+# Remove multi-line macros starting with a lowercase letter
+sed -i -e '/#define [a-z].*\\/,/[^\\]$/d' $1
+# Remove multiple empty lines
 sed -i -n '/./,/^$/p' $1
 
 run replace $1
