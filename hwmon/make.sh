@@ -13,7 +13,9 @@ run()
 	MODE=patch M=${subdir} | patch -p 1
 }
 
-run sensor-devattr-w6
+run sensor-attr-w2
+run sensor-devattr-w8
+run permissions
 
 cleanup()
 {
@@ -23,6 +25,8 @@ cleanup()
 	fi
 }
 
+exit 0
+
 cleanup drivers/hwmon/adm1025.c
 cleanup drivers/hwmon/adm1026.c
 cleanup drivers/hwmon/adm1031.c
@@ -30,8 +34,10 @@ cleanup drivers/hwmon/adm9240.c
 cleanup drivers/hwmon/adt7411.c
 cleanup drivers/hwmon/asb100.c
 cleanup drivers/hwmon/dme1737.c
+cleanup drivers/hwmon/f71805f.c
 cleanup drivers/hwmon/f75375s.c
 cleanup drivers/hwmon/it87.c
+cleanup drivers/hwmon/lm63.c
 cleanup drivers/hwmon/lm78.c
 cleanup drivers/hwmon/lm85.c
 cleanup drivers/hwmon/lm87.c
@@ -47,10 +53,13 @@ cleanup drivers/hwmon/smsc47m1.c
 cleanup drivers/hwmon/thmc50.c
 cleanup drivers/hwmon/ultra45_env.c
 cleanup drivers/hwmon/via686a.c
+cleanup drivers/hwmon/vt1211.c
 cleanup drivers/hwmon/vt8231.c
 cleanup drivers/hwmon/w83627ehf.c
 cleanup drivers/hwmon/w83627hf.c
 cleanup drivers/hwmon/w83791d.c
+cleanup drivers/hwmon/w83793.c
 cleanup drivers/hwmon/w83l785ts.c
+cleanup drivers/hwmon/w83l786ng.c
 cleanup drivers/hwmon/wm831x-hwmon.c
 cleanup drivers/hwmon/wm8350-hwmon.c
