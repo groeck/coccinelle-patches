@@ -66,8 +66,8 @@ handle_one()
     fi
 
     if [[ "${sensordev}" -ne 0 ]]; then
-        subject="Use permission specific SENSOR[_DEVICE]_ATTR variants"
-        msg="Use SENSOR[_DEVICE]_ATTR[_2]_{RO,RW,WO} to simplify the source code,
+        subject="Use permission specific [SENSOR_][DEVICE_]ATTR variants"
+        msg="Use [SENSOR_][DEVICE_]ATTR[_2]_{RO,RW,WO} to simplify the source code,
 to improve readbility, and to reduce the chance of inconsistencies.
 
 Also replace any remaining S_<PERMS> in the driver with octal values."
