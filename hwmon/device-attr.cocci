@@ -1,3 +1,13 @@
+//
+//  Not available\ncoccinellery-short = Not available\ncoccinellery-copyright = Copyright: 2012 - LIP6/INRIA\ncoccinellery-license = Licensed under GPLv2 or any later version.\ncoccinellery-author0 = Not available\n\nNot available\n
+//
+// Target: Not available\ncoccinellery-short = Not available\ncoccinellery-copyright = Copyright: 2012 - LIP6/INRIA\ncoccinellery-license = Licensed under GPLv2 or any later version.\ncoccinellery-author0 = Not available\n\nNot available\n
+// Copyright:  Not available\ncoccinellery-short = Not available\ncoccinellery-copyright = Copyright: 2012 - LIP6/INRIA\ncoccinellery-license = Licensed under GPLv2 or any later version.\ncoccinellery-author0 = Not available\n\nNot available\n
+// License:  Not available\ncoccinellery-short = Not available\ncoccinellery-copyright = Copyright: 2012 - LIP6/INRIA\ncoccinellery-license = Licensed under GPLv2 or any later version.\ncoccinellery-author0 = Not available\n\nNot available\n
+// Author: Not available\ncoccinellery-short = Not available\ncoccinellery-copyright = Copyright: 2012 - LIP6/INRIA\ncoccinellery-license = Licensed under GPLv2 or any later version.\ncoccinellery-author0 = Not available\n\nNot available\n
+// URL: http://coccinelle.lip6.fr/ 
+// URL: http://coccinellery.org/ 
+
 virtual patch
 
 @initialize:ocaml@
@@ -5,88 +15,72 @@ virtual patch
 
 let taken = Hashtbl.create 101
 
-@initialize:python@
-@@
-
-import re
-
 // -------------------------------------------------------------------------
 // Easy case
 
 @d@
-identifier x,show,store;
-expression p;
+declarer name DEVICE_ATTR;
+identifier x;
 @@
 
-(
-  DEVICE_ATTR(x,p,show,store);
-|
-  __ATTR(x,p,show,store)
-)
+DEVICE_ATTR(x,...);
 
 @script:ocaml depends on d@
 @@
 
 Hashtbl.clear taken
 
-@script:python expected@
-show << d.show;
-store << d.store;
+@script:ocaml expected@
+x << d.x;
 x_show;
 x_store;
-func;
 @@
-coccinelle.func = re.sub('^show_|^get_|_show$|_get$|_read$', '', show)
-coccinelle.x_show = re.sub('^show_|^get_|_show$|_get$|_read$', '', show) + "_show"
-coccinelle.x_store = re.sub('^show_|^get_|_get$|_show$|_read$', '', show) + "_store"
-
-if show == "NULL":
-    coccinelle.x_store = re.sub('^store_|^set_|_set$|_store$|_write$|_reset$', '', store) + "_store"
-    coccinelle.func = re.sub('^store_|^set_|_store$|_set$|_write$|_reset$', '', store)
+x_show := make_ident (x^"_show");
+x_store := make_ident (x^"_store")
 
 @@
-identifier d.x,expected.x_show,expected.func;
+declarer name DEVICE_ATTR_RO;
+identifier d.x,expected.x_show;
 @@
 
-(
-- DEVICE_ATTR(x, \(0444\|S_IRUGO\), x_show, NULL)
-+ DEVICE_ATTR_RO(x, func)
-|
-- __ATTR(x, \(0444\|S_IRUGO\), x_show, NULL)
-+ __ATTR_RO(x, func)
-)
+- DEVICE_ATTR(x, \(0444\|S_IRUGO\), x_show, NULL);
++ DEVICE_ATTR_RO(x);
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+declarer name DEVICE_ATTR_WO;
+identifier d.x,expected.x_store;
 @@
 
-(
-- DEVICE_ATTR(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store)
-+ DEVICE_ATTR_RW(x, func)
-|
-- __ATTR(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store)
-+ __ATTR_RW(x, func)
-)
+- DEVICE_ATTR(x, \(0200\|S_IWUSR\), NULL, x_store);
++ DEVICE_ATTR_WO(x);
+
+@@
+declarer name DEVICE_ATTR_RW;
+identifier d.x,expected.x_show,expected.x_store;
+@@
+
+- DEVICE_ATTR(x, \(0644\|S_IRUGO|S_IWUSR\), x_show, x_store);
++ DEVICE_ATTR_RW(x);
 
 // -------------------------------------------------------------------------
 // Other calls
 
 @o@
+declarer name DEVICE_ATTR;
 identifier d.x,show,store;
 @@
 
-(
-DEVICE_ATTR(x,\(0444\|S_IRUGO\|0200\|S_IWUSR\|0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\),show,store)
-|
-__ATTR(x,\(0444\|S_IRUGO\|0200\|S_IWUSR\|0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\),show,store)
-)
+DEVICE_ATTR(x,\(0444\|S_IRUGO\|0200\|S_IWUSR\|0644\|S_IRUGO|S_IWUSR\),
+            show,store);
 
 @script:ocaml@
+x << d.x;
 show << o.show;
 store << o.store;
 @@
 
-if (not(store = "NULL") && Hashtbl.mem taken store)
+if (not(show = "NULL") && Hashtbl.mem taken show) ||
+   (not(store = "NULL") && Hashtbl.mem taken store)
 then Coccilib.include_match false
 else (Hashtbl.add taken show (); Hashtbl.add taken store ())
 
@@ -141,25 +135,25 @@ identifier o.store,expected.x_store;
 // try again
 
 @@
-identifier d.x,expected.x_show,expected.func;
+declarer name DEVICE_ATTR_RO;
+identifier d.x,expected.x_show;
 @@
 
-(
-- DEVICE_ATTR(x, \(0444\|S_IRUGO\), x_show, NULL)
-+ DEVICE_ATTR_RO(x, func)
-|
-- __ATTR(x, \(0444\|S_IRUGO\), x_show, NULL)
-+ __ATTR_RO(x, func)
-)
+- DEVICE_ATTR(x, \(0444\|S_IRUGO\), x_show, NULL);
++ DEVICE_ATTR_RO(x);
 
 @@
-identifier d.x,expected.x_show,expected.x_store,expected.func;
+declarer name DEVICE_ATTR_WO;
+identifier d.x,expected.x_store;
 @@
 
-(
-- DEVICE_ATTR(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store)
-+ DEVICE_ATTR_RW(x, func)
-|
-- __ATTR(x, \(0644\|S_IRUGO|S_IWUSR\|S_IWUSR|S_IRUGO\), x_show, x_store)
-+ __ATTR_RW(x, func)
-)
+- DEVICE_ATTR(x, \(0200\|S_IWUSR\), NULL, x_store);
++ DEVICE_ATTR_WO(x);
+
+@@
+declarer name DEVICE_ATTR_RW;
+identifier d.x,expected.x_show,expected.x_store;
+@@
+
+- DEVICE_ATTR(x, \(0644\|S_IRUGO|S_IWUSR\), x_show, x_store);
++ DEVICE_ATTR_RW(x);
