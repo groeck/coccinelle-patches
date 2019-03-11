@@ -3,16 +3,40 @@ basedir=$(cd $(dirname $0); pwd)
 
 noclean=$2
 
+targets="${subdir}
+	drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+	drivers/gpu/drm/nouveau/nouveau_hwmon.c
+	drivers/gpu/drm/radeon/radeon_pm.c
+	drivers/net/ethernet/broadcom/bnxt/bnxt.c
+	drivers/net/ethernet/broadcom/tg3.c
+	drivers/net/ethernet/emulex/benet/be_main.c
+	drivers/net/ethernet/qlogic/qlcnic/qlcnic_sysfs.c
+	drivers/net/wireless/ath/ath10k/thermal.c
+	drivers/ntb/hw/idt/ntb_hw_idt.c
+	drivers/platform/mips/cpu_hwmon.c
+	drivers/rtc/rtc-ds1307.c
+	drivers/rtc/rtc-rv3029c2.c
+	drivers/platform/x86/thinkpad_acpi.c"
+
 rm -f coccinelle.log
 
 run()
 {
-    echo $1
+    local func=$1
+    local m
+    shift
 
-    make coccicheck COCCI=${basedir}/$1.cocci SPFLAGS="--linux-spacing" \
-	MODE=patch M=${subdir} | patch -p 1
+
+    for m in ${targets}
+    do
+        echo "${func}:${m}"
+        make coccicheck COCCI=${basedir}/${func}.cocci \
+	    SPFLAGS="--linux-spacing" \
+	    MODE=patch M="${m}" | patch -p 1
+    done
 }
 
+run device-attr
 run sensor-attr-w2
 run sensor-devattr-w8
 run permissions
