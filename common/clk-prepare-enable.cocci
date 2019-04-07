@@ -51,6 +51,13 @@ identifier pdev;
 @@
 probefn(T pdev, ...) { ... }
 
+@script:python fname@
+func << probe.probefn;
+clkfunc;
+@@
+
+coccinelle.clkfunc = '_'.join([func.split('_')[0], 'clk_disable_unprepare']);
+
 @check depends on probe@
 identifier initfn, pdev;
 position p;
@@ -67,12 +74,20 @@ initfn(T pdev, ...)
 identifier check.pdev;
 expression e1;
 position check.p;
+identifier fname.clkfunc;
 @@
 
 - clk_prepare_enable@p(e1)
-+ devm_clk_prepare_enable(&pdev->dev, e1)
++ devm_add_action_or_reset(&pdev->dev, clkfunc, e1)
   ... when any
 ?-clk_disable_unprepare(e1);
+
+@devm depends on prb@
+identifier probe.probefn;
+identifier fname.clkfunc;
+@@
++ static void clkfunc(void *data) { clk_disable_unprepare(data); }
+  probefn(...) { ... }
 
 @rem depends on prb@
 identifier remove.removefn;
