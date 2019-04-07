@@ -211,7 +211,11 @@ identifier i;
 type T;
 @@
 
+(
 - T i = E;
+|
+- i = E;
+)
 - return i;
 + return E;
 
