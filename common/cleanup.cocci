@@ -76,6 +76,14 @@ initfn(...) {
 -  {}
 ...+> }
 
+@uret depends on probe@
+identifier ret;
+@@
+
+- if (ret) return ret;
+- return 0;
++ return ret;
+
 @e@
 identifier i;
 position p;
@@ -316,3 +324,9 @@ p << need_trailing.p1;
 @@
 
 print >> f, "%s:cleanup1:%s" % (p[0].file, p[0].line)
+
+@script:python depends on uret@
+p << probe.pos;
+@@
+
+print >> f, "%s:cleanup7:%s" % (p[0].file, p[0].line)
