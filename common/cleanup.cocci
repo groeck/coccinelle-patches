@@ -121,19 +121,34 @@ fn(...)
   ...+>
 }
 
+@st@
+identifier i;
+position p;
+type T;
+expression E;
+@@
+
+(
+static T i@p;
+|
+static T i@p = E;
+)
+
 @unused_assign2 depends on probe@
 type T;
 identifier i;
 expression E;
+position p != st.p;
 @@
-- T i = E;
+- T i@p = E;
  ... when != i
 
 @unused_var depends on probe@
 type T;
 identifier i;
+position p != st.p;
 @@
-- T i;
+- T i@p;
  ... when != i
 
 @ex@
@@ -190,6 +205,16 @@ position need_trailing.p1;
 
 - i@p1 = E;
 
+@return_direct depends on probe@
+expression E;
+identifier i;
+type T;
+@@
+
+- T i = E;
+- return i;
++ return E;
+
 @u1 depends on probe@
 expression e1, e2;
 position p0, p1, p2;
@@ -220,7 +245,7 @@ identifier remove.removefn;
 @@
 
 - removefn(...) {
-?-\(dev_warn\|dev_info\|pr_warn\|pr_crit\)(...);
+?-\(dev_crit\|dev_warn\|dev_info\|dev_dbg\|pr_warn\|pr_crit\)(...);
 - return 0;
 - }
 
