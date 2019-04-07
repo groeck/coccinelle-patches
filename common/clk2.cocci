@@ -65,8 +65,16 @@ e = devm_clk_get(d,...);
 ...+>
 }
 
+@script:python fname@
+func << r.initfn;
+clkfunc;
+@@
+
+coccinelle.clkfunc = '_'.join([func.split('_')[0], 'clk_disable_unprepare']);
+
 @prb depends on !rx@
 identifier r.initfn;
+identifier fname.clkfunc;
 expression rdev.d;
 local idexpression v;
 expression e1;
@@ -85,13 +93,20 @@ v
 v < 0
 )
   ) S
-+ v = devm_add_action_or_reset(d, (void (*)(void *))clk_disable_unprepare, e1);
++ v = devm_add_action_or_reset(d, clkfunc, e1);
 + if (v)
 +        return v;
   ... when any
 ?-clk_disable_unprepare(e1);
 ...+>
 }
+
+@devm depends on prb@
+identifier r.initfn;
+identifier fname.clkfunc;
+@@
++ static void clkfunc(void *data) { clk_disable_unprepare(data); }
+  initfn(...) { ... }
 
 @rem depends on prb@
 identifier remove.removefn, probe.probefn;
