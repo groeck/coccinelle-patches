@@ -95,6 +95,12 @@ findlog_common()
   with devm_ioremap_resource"
 		d=1
 		;;
+	    "ioremap4")
+		outmsg="${outmsg}
+- Replace platform_get_resource followed by devm_ioremap_resource
+  with devm_platform_ioremap_resource"
+		d=1
+	        ;;
 	    "irq1")
 		outmsg="${outmsg}
 - Replace request_irq, request_threaded_irq, and request_any_context_irq
