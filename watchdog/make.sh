@@ -56,33 +56,6 @@ cleanup()
 	fi
 }
 
-# drop all patches associated with clk_disable_unprepare
-# (courtesy C standard)
-
-cleanup drivers/watchdog/asm9260_wdt.c
-cleanup drivers/watchdog/at91sam9_wdt.c
-cleanup drivers/watchdog/atlas7_wdt.c
-cleanup drivers/watchdog/bcm7038_wdt.c
-cleanup drivers/watchdog/cadence_wdt.c
-cleanup drivers/watchdog/coh901327_wdt.c
-cleanup drivers/watchdog/davinci_wdt.c
-cleanup drivers/watchdog/dw_wdt.c
-cleanup drivers/watchdog/imgpdc_wdt.c
-cleanup drivers/watchdog/imx2_wdt.c
-cleanup drivers/watchdog/loongson1_wdt.c
-cleanup drivers/watchdog/lpc18xx_wdt.c
-cleanup drivers/watchdog/meson_gxbb_wdt.c
-cleanup drivers/watchdog/of_xilinx_wdt.c
-cleanup drivers/watchdog/orion_wdt.c
-cleanup drivers/watchdog/pic32-dmt.c
-cleanup drivers/watchdog/pic32-wdt.c
-cleanup drivers/watchdog/pnx4008_wdt.c
-cleanup drivers/watchdog/qcom-wdt.c
-cleanup drivers/watchdog/st_lpc_wdt.c
-cleanup drivers/watchdog/sunxi_wdt.c
-cleanup drivers/watchdog/tangox_wdt.c
-cleanup drivers/watchdog/txx9wdt.c
-
 # The following patches are known to be broken, problematic, or cosmetic
 
 # cpufreq interaction
@@ -91,16 +64,57 @@ cleanup drivers/watchdog/s3c2410_wdt.c
 # static struct ie6xx_wdt_data should really be allocated
 cleanup drivers/watchdog/ie6xx_wdt.c
 
+# uses soft timer, and request_irq w/o release_irq
+cleanup drivers/watchdog/at91sam9_wdt.c
+# private timer
+cleanup drivers/watchdog/bcm47xx_wdt.c
+cleanup drivers/watchdog/retu_wdt.c
+
+# private reset control
+cleanup drivers/watchdog/dw_wdt.c
+
+# multiple clock init calls
+cleanup drivers/watchdog/orion_wdt.c
+
+# Calls private disable function
+cleanup drivers/watchdog/coh901327_wdt.c
+
+# Calls ping on remove, does not call clk_disable_unprepare
+# on remove
+cleanup drivers/watchdog/imx2_wdt.c
+
+# Manually stops watchdog on remove
+cleanup drivers/watchdog/nic7018_wdt.c
+
+# removes a global extern
+cleanup drivers/watchdog/rc32434_wdt.c
+
+# interference with pm functions
+cleanup drivers/watchdog/renesas_wdt.c
+cleanup drivers/watchdog/shwdt.c
+cleanup drivers/watchdog/omap_wdt.c
+
+# interference with put function - should use devm_clk_get()
+cleanup drivers/watchdog/txx9wdt.c
+
+# incomplete (does not replace watchdog_register_device)
+cleanup drivers/watchdog/ziirave_wdt.c
+
+#
 # possible impact from pm_runtime functions
 #	drivers/watchdog/renesas_wdt.c; git checkout drivers/watchdog/renesas_wdt.c
 #	drivers/watchdog/shwdt.c; git checkout drivers/watchdog/shwdt.c
 
 # uses miscdevice, don't bother
-cleanup drivers/watchdog/ath79_wdt.c
 cleanup drivers/watchdog/ar7_wdt.c
+cleanup drivers/watchdog/at91rm9200_wdt.c
+cleanup drivers/watchdog/ath79_wdt.c
+cleanup drivers/watchdog/bcm63xx_wdt.c
 cleanup drivers/watchdog/cpwd.c
 cleanup drivers/watchdog/gef_wdt.c
-cleanup drivers/watchdog/at91rm9200_wdt.c
+cleanup drivers/watchdog/mtx-1_wdt.c
+cleanup drivers/watchdog/nuc900_wdt.c
+cleanup drivers/watchdog/rdc321x_wdt.c
 cleanup drivers/watchdog/riowd.c
 cleanup drivers/watchdog/sch311x_wdt.c
 cleanup drivers/watchdog/sp5100_tco.c
