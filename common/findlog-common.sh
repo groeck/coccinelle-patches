@@ -1,6 +1,6 @@
 findlog_common()
 {
-	local file=$1
+	local file="$(basename $1)"
 
 	outmsg_common=""
 
