@@ -1,6 +1,6 @@
 findlog_watchdog()
 {
-	local file=$1
+	local file="$(basename $1)"
 
 	for action in $(grep ${file} coccinelle.log | cut -f2 -d: | sort -u)
 	do
