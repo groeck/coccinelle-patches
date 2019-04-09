@@ -26,12 +26,21 @@ Cc: $m"
 git status | grep modified: | awk '{print $2}' | while read a
 do
     echo "Handling $a"
+
+    # Only commit if a maching object file exists
+    o="${a%.c}.o"
+    if [ ! -e $o ]; then
+        echo "$a: No object file - skipping"
+	continue
+    fi
+
     git add $a
 
     outmsg=""
     d=0
     o=0
     s=0
+    p=0
 
     findlog_common $a
     findlog_watchdog $a
@@ -55,6 +64,12 @@ Other improvements as listed below."
 		subject="Replace shutdown function with call to watchdog_stop_on_reboot"
 		msg="The shutdown function calls the stop function.
 Call watchdog_stop_on_reboot() from probe instead."
+	elif [ $p -ne 0 ]
+	then
+		subject="Use 'dev' instead of dereferencing it repeatedly"
+		msg="Introduce local variable 'struct device *dev' and use it instead of
+dereferencing it repeatedly."
+		outmsg=""
 	else
 		subject="Various improvements"
 		msg="Various coccinelle driven transformations as detailed below."
@@ -64,8 +79,8 @@ Call watchdog_stop_on_reboot() from probe instead."
 	-m "watchdog: $(basename -s .c $a): ${subject}" \
 	-m "${msg}" \
 	-m "The conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts used
-to generate this commit log are available at
+following semantic patches. The semantic patches and the scripts
+used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches" \
 -m "${outmsg}" \
 -m "${cc}"
