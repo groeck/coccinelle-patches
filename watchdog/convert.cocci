@@ -70,7 +70,7 @@ struct file_operations fo = {
 @io@
 identifier fops.ioctl;
 identifier var;
-identifier pingfunc;
+identifier pingfunc != {spin_lock, spin_unlock};
 expression E;
 position p;
 @@
@@ -97,7 +97,7 @@ ioctl(...)
 
 @io_start@
 identifier var, val, val2;
-identifier startfunc;
+identifier startfunc != {spin_lock, spin_unlock};
 statement S;
 expression E;
 position p;
@@ -312,7 +312,7 @@ ioctl(...)
 }
 
 // We have everything we need from ioctl, let's remove it
-@depends on io@
+@depends on miscdev@
 identifier fops.ioctl;
 @@
 
@@ -491,7 +491,7 @@ identifier f.wops;
 +	.stop = stopfunc,
   };
 
-@fops_add_start depends on replace_fops@
+@fops_add_start@
 identifier io_start.startfunc;
 identifier f.wops;
 @@
@@ -569,13 +569,11 @@ identifier notifier.nb;
 - unregister_reboot_notifier(&nb);
 
 @depends on reboot@
-identifier notifier.nb;
 @@
 
 - #include <linux/reboot.h>
 
 @depends on reboot@
-identifier notifier.nb;
 @@
 
 - #include <linux/notifier.h>
