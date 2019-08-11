@@ -61,9 +61,8 @@ struct file_operations fo = {
 
 @io@
 identifier fops.ioctl;
-identifier v, var;
+identifier var;
 identifier pingfunc;
-statement S;
 expression E;
 position p;
 @@
@@ -176,31 +175,23 @@ statement S;
 ...+>
 
 @io_settimeout@
-identifier var, res;
-identifier settimeout != {io.pingfunc,io_start.startfunc,io_stop.stopfunc,get_user,put_user,spin_lock,spin_unlock};
-statement S;
-expression E;
+identifier var;
+identifier settimeout != {io.pingfunc,io_start.startfunc,io_stop.stopfunc,
+	 get_user,put_user,copy_from_user,copy_to_user,
+	 spin_lock,spin_unlock,
+	 superio_enter,superio_select,superio_exit};
 position p;
+expression E;
 @@
 
 <+...
   switch (var) {
   case WDIOC_SETTIMEOUT:
+? {
 	<+...
-(
-	settimeout@p(...);
-|
-	res = settimeout@p(...);
-)
+	settimeout@p(E, ...)
 	...+>
-?	S
-(
-	break;
-|
-	return E;
-|
-	/* nothing */
-)
+? }
   }
 ...+>
 
@@ -312,13 +303,17 @@ wsettimeout;
 @@
 
 wops :=
-   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_ops");
+   make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
+   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_ops"));
 wdev :=
-   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_dev");
+   make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
+   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_dev"));
 winfo :=
-   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_info");
+   make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
+   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_info"));
 wsettimeout :=
-   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_set_timeout")
+   make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
+   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_set_timeout"))
 
 @info@
 identifier i;
@@ -372,26 +367,28 @@ identifier miscdev.fo;
 +	/* FIXME probably declared locally in ioctl */
 + };
 
-@settimeout_replace depends on io_settimeout@
+@settimeout_replace@
 identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
-- void settimeout(
-+ int wsettimeout(struct watchdog_device *wdd,
-  ...)
+- void settimeout(...)
++ int wsettimeout(struct watchdog_device *wdd, int timeout)
   {
   ...
+  wdd->timeout = timeout;
 + return 0;
   }
 
 @settimeout_replace2 depends on !settimeout_replace@
 identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
+expression E;
 @@
-- settimeout(
-+ wsettimeout(struct watchdog_device *wdd,
-  ...)
-  { ... }
+- settimeout(...)
++ wsettimeout(struct watchdog_device *wdd, int timeout)
+  {
+  ...
+  }
 
 @settimeout_create depends on !settimeout_replace && !settimeout_replace2 && have_settimeout@
 identifier fops.ioctl;
@@ -401,6 +398,7 @@ identifier f.wsettimeout;
 + static int wsettimeout(struct watchdog_device *wdd, int timeout)
 + {
 + /* FIXME driver supports setting the timeout but no function identified */
++ wdd->timeout = timeout;
 + }
 
 @depends on io@
@@ -409,65 +407,48 @@ identifier fops.ioctl;
 
 - ioctl(...) { ... }
 
-@replace_fops_all@
+@replace_fops@
 identifier miscdev.fo;
-identifier io_start.startfunc;
+identifier f.wops;
+@@
+
+- struct file_operations fo = { ... };
++ struct watchdog_ops wops = {
++
++ };
+
+@replace_add_settimeout depends on have_settimeout@
+identifier f.wops;
+identifier f.wsettimeout;
+@@
+  struct watchdog_ops wops = {
++	.settimeout = wsettimeout,
+  };
+
+@replace_add_ping@
+identifier io.pingfunc;
+identifier f.wops;
+@@
+  struct watchdog_ops wops = {
++	.ping = pingfunc,
+  };
+
+@fops_add_stop@
 identifier io_stop.stopfunc;
-identifier io.pingfunc;
 identifier f.wops;
 @@
-
-- struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
-+	.start = startfunc,
+  struct watchdog_ops wops = {
 +	.stop = stopfunc,
-+	.ping = pingfunc,
-+ };
+  };
 
-@replace_fops_nostop depends on !replace_fops_all@
-identifier miscdev.fo;
-identifier io_start.startfunc;
-identifier io.pingfunc;
-identifier f.wops;
-@@
-
-- struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
-+	.start = startfunc,
-	/* FIXME check for stop function */
-+	.ping = pingfunc,
-+ };
-
-@replace_fops_start depends on !replace_fops_nostop@
-identifier miscdev.fo;
+@fops_add_start depends on replace_fops@
 identifier io_start.startfunc;
 identifier f.wops;
 @@
-- struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
+
+  struct watchdog_ops wops = {
 +	.start = startfunc,
-+	/* FIXME check for ping function */
-+ };
-
-@replace_fops_ping depends on !replace_fops_start@
-identifier miscdev.fo;
-identifier io.pingfunc;
-identifier f.wops;
-@@
-- struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
-+	/* FIXME start function missing */
-+	.ping = pingfunc,
-+ };
-
-@depends on !replace_fops_start@
-identifier miscdev.fo;
-identifier f.wops;
-@@
-- struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
-+	/* FIXME */
-+ };
+  };
 
 @@
 identifier miscdev.m;
