@@ -25,6 +25,14 @@ struct miscdevice m@p = {
 @@
 - #include <linux/uaccess.h>
 
+@notifier depends on miscdev@
+identifier nb, nf;
+position p;
+@@
+struct notifier_block nb@p = {
+  .notifier_call = nf,
+};
+
 @fops@
 identifier miscdev.fo;
 identifier ioctl;
@@ -406,7 +414,7 @@ identifier time;
 type t;
 @@
 - void settimeout(t time)
-+ int wsettimeout(struct watchdog_device *wdd, int time)
++ int wsettimeout(struct watchdog_device *wdd, unsigned int time)
   {
   ...
 + wdd->timeout = time;
@@ -418,10 +426,9 @@ identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 type t1, t2;
 identifier time;
-expression E;
 @@
 - t1 settimeout(t2 time)
-+ int wsettimeout(struct watchdog_device *wdd, int time)
++ int wsettimeout(struct watchdog_device *wdd, unsigned int time)
   {
   ...
   }
@@ -433,7 +440,7 @@ identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
 - void settimeout(...)
-+ int wsettimeout(struct watchdog_device *wdd, int timeout)
++ int wsettimeout(struct watchdog_device *wdd, unsigned int timeout)
   {
   ...
 + wdd->timeout = timeout;
@@ -445,7 +452,7 @@ identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
 - settimeout(...)
-+ wsettimeout(struct watchdog_device *wdd, int timeout)
++ wsettimeout(struct watchdog_device *wdd, unsigned int timeout)
   {
   ...
   }
@@ -465,7 +472,7 @@ identifier f.wops;
 identifier f.wsettimeout;
 @@
   struct watchdog_ops wops = {
-+	.settimeout = wsettimeout,
++	.set_timeout = wsettimeout,
   };
 
 @replace_add_ping@
@@ -544,6 +551,47 @@ identifier io_stop.stopfunc;
 + return 0;
   }
 
+@reboot@
+identifier notifier.nb;
+identifier ret;
+expression E;
+identifier f.wdev;
+@@
+
+- ret = register_reboot_notifier(&nb);
+- if (E) { ... }
++ watchdog_stop_on_reboot(&wdev);
+
+@depends on reboot@
+identifier notifier.nb;
+@@
+
+- unregister_reboot_notifier(&nb);
+
+@depends on reboot@
+identifier notifier.nb;
+@@
+
+- #include <linux/reboot.h>
+
+@depends on reboot@
+identifier notifier.nb;
+@@
+
+- #include <linux/notifier.h>
+
+@depends on reboot@
+identifier notifier.nb;
+@@
+
+- struct notifier_block nb = { ... };
+
+@depends on reboot@
+identifier notifier.nf;
+@@
+
+- nf(...) { ... }
+
 @@
 identifier miscdev.m;
 identifier ret;
@@ -555,7 +603,7 @@ identifier f.wdev;
 + watchdog_register_device(&wdd);
 |
 - ret = misc_register(&m);
-+ ret = watchdog_device_register(&wdev);
++ ret = watchdog_register_device(&wdev);
 )
 
 @@
@@ -564,7 +612,7 @@ identifier f.wdev;
 @@
 
 - misc_deregister(&m);
-+ watchdog_unregister_device(&wdd);
++ watchdog_unregister_device(&wdev);
 
 @script:python depends on miscdev@
 m << miscdev.m;
@@ -662,3 +710,11 @@ id << info_id.id;
 @@
 
 print >> f, "info_id: id='%s' @ %s:%s" % (id, pos[0].file, pos[0].line)
+
+@script:python depends on notifier@
+pos << notifier.p;
+nb << notifier.nb;
+nf << notifier.nf;
+@@
+
+print >> f, "notifier: '%s' @ %s:%s calling %s" % (nb, pos[0].file, pos[0].line, nf)
