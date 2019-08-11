@@ -7,8 +7,9 @@ f = open('coccinelle.log', 'a')
 
 @miscdev@
 identifier m, fo;
+position p;
 @@
-struct miscdevice m = {
+struct miscdevice m@p = {
   .fops = &fo,
 };
 
@@ -27,8 +28,9 @@ struct miscdevice m = {
 @fops@
 identifier miscdev.fo;
 identifier ioctl;
+position p;
 @@
-struct file_operations fo = {
+struct file_operations fo@p = {
    .unlocked_ioctl = ioctl,
 };
 
@@ -59,7 +61,7 @@ struct file_operations fo = {
 
 @io@
 identifier fops.ioctl;
-identifier var;
+identifier v, var;
 identifier pingfunc;
 statement S;
 expression E;
@@ -73,20 +75,14 @@ ioctl(...)
   case WDIOC_KEEPALIVE:
 (
   pingfunc@p(...);
+  ...
   break;
 |
   return pingfunc@p(...);
 |
   pingfunc@p(...);
+  ...
   return E;
-|
-  pingfunc@p(...);
-  S
-  return E;
-|
-  pingfunc@p(...);
-  S
-  break;
 )
   }
   ...+>
@@ -115,7 +111,9 @@ position p;
 |
 	switch (val2) {
 	case WDIOS_ENABLECARD:
+		<+...
 		startfunc@p(...);
+		...+>
 		break;
 	}
 )
@@ -164,9 +162,22 @@ position p;
   }
 ...+>
 
+@have_settimeout@
+identifier var;
+position p;
+statement S;
+@@
+
+<+...
+  switch (var) {
+  case WDIOC_SETTIMEOUT@p:
+  	S
+  }
+...+>
+
 @io_settimeout@
 identifier var, res;
-identifier settimeout != io.pingfunc;
+identifier settimeout != {io.pingfunc,io_start.startfunc,io_stop.stopfunc,get_user,put_user,spin_lock,spin_unlock};
 statement S;
 expression E;
 position p;
@@ -280,12 +291,6 @@ ioctl(...)
   ...>
 }
 
-@depends on io@
-identifier fops.ioctl;
-@@
-
-- ioctl(...) { ... }
-
 @@
 identifier fopso.fopen;
 @@
@@ -303,6 +308,7 @@ fo << miscdev.fo;
 wops;
 wdev;
 winfo;
+wsettimeout;
 @@
 
 wops :=
@@ -310,7 +316,9 @@ wops :=
 wdev :=
    make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_dev");
 winfo :=
-   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_info")
+   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_info");
+wsettimeout :=
+   make_ident (List.hd(Str.split (Str.regexp "_") fo) ^ "_set_timeout")
 
 @info@
 identifier i;
@@ -363,6 +371,43 @@ identifier miscdev.fo;
 + static struct watchdog_info winfo = {
 +	/* FIXME probably declared locally in ioctl */
 + };
+
+@settimeout_replace depends on io_settimeout@
+identifier io_settimeout.settimeout;
+identifier f.wsettimeout;
+@@
+- void settimeout(
++ int wsettimeout(struct watchdog_device *wdd,
+  ...)
+  {
+  ...
++ return 0;
+  }
+
+@settimeout_replace2 depends on !settimeout_replace@
+identifier io_settimeout.settimeout;
+identifier f.wsettimeout;
+@@
+- settimeout(
++ wsettimeout(struct watchdog_device *wdd,
+  ...)
+  { ... }
+
+@settimeout_create depends on !settimeout_replace && !settimeout_replace2 && have_settimeout@
+identifier fops.ioctl;
+identifier f.wsettimeout;
+@@
+  ioctl(...) { ...}
++ static int wsettimeout(struct watchdog_device *wdd, int timeout)
++ {
++ /* FIXME driver supports setting the timeout but no function identified */
++ }
+
+@depends on io@
+identifier fops.ioctl;
+@@
+
+- ioctl(...) { ... }
 
 @replace_fops_all@
 identifier miscdev.fo;
@@ -475,25 +520,6 @@ identifier io_stop.stopfunc;
 + return 0;
   }
 
-@settimeout_replace depends on io_settimeout@
-identifier io_settimeout.settimeout;
-@@
-- void settimeout(
-+ int settimeout(struct watchdog_device *wdd,
-  ...)
-  {
-  ...
-+ return 0;
-  }
-
-@settimeout_replace2 depends on !settimeout_replace@
-identifier io_settimeout.settimeout;
-@@
-- settimeout(
-+ settimeout(struct watchdog_device *wdd,
-  ...)
-  { ... }
-
 @@
 identifier miscdev.m;
 identifier ret;
@@ -510,15 +536,17 @@ identifier f.wdev;
 
 @script:python depends on miscdev@
 m << miscdev.m;
+p << miscdev.p;
 @@
 
-print >> f, "miscdev: %s" % m
+print >> f, "miscdev: %s @ %s:%s" % (m, p[0].file, p[0].line)
 
 @script:python depends on fops@
 ioctl << fops.ioctl;
+p << fops.p;
 @@
 
-print >> f, "ioctl: %s" % ioctl
+print >> f, "ioctl: %s @ %s:%s" % (ioctl, p[0].file, p[0].line)
 
 
 @script:python depends on io@
@@ -541,6 +569,12 @@ pos << io_stop.p;
 @@
 
 print >> f, "stopfunc: %s @ %s:%s" % (stopfunc, pos[0].file, pos[0].line)
+
+@script:python depends on have_settimeout@
+pos << have_settimeout.p;
+@@
+
+print >> f, "have_settimeout: case @ %s:%s" % (pos[0].file, pos[0].line)
 
 @script:python depends on io_settimeout@
 settimeout << io_settimeout.settimeout;
