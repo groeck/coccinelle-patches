@@ -161,7 +161,7 @@ position p;
   }
 ...+>
 
-@have_settimeout@
+@have_stt@
 identifier var;
 position p;
 statement S;
@@ -171,6 +171,24 @@ statement S;
   switch (var) {
   case WDIOC_SETTIMEOUT@p:
   	S
+  }
+...+>
+
+@have_stt_ping@
+identifier var;
+identifier io.pingfunc;
+position p;
+expression E;
+@@
+
+<+...
+  switch (var) {
+  case WDIOC_SETTIMEOUT:
+? {
+	<+...
+	pingfunc@p(E, ...)
+	...+>
+? }
   }
 ...+>
 
@@ -244,12 +262,13 @@ startfunc@pos(...);
 identifier i;
 expression o;
 identifier fops.ioctl;
+position p;
 @@
 ioctl(...)
 {
   <...
   struct watchdog_info i = {
-    .options = o,
+    .options@p = o,
   };
   ...>
 }
@@ -258,12 +277,13 @@ ioctl(...)
 identifier i;
 expression fw;
 identifier fops.ioctl;
+position p;
 @@
 ioctl(...)
 {
   <...
   struct watchdog_info i = {
-    .firmware_version = fw,
+    .firmware_version@p = fw,
   };
   ...>
 }
@@ -272,15 +292,23 @@ ioctl(...)
 identifier i;
 expression id;
 identifier fops.ioctl;
+position p;
 @@
 ioctl(...)
 {
   <...
   struct watchdog_info i = {
-    .identity = id,
+    .identity@p = id,
   };
   ...>
 }
+
+// We have everything we need from ioctl, let's remove it
+@depends on io@
+identifier fops.ioctl;
+@@
+
+- ioctl(...) { ... }
 
 @@
 identifier fopso.fopen;
@@ -365,9 +393,42 @@ identifier miscdev.fo;
 +
 + static struct watchdog_info winfo = {
 +	/* FIXME probably declared locally in ioctl */
++
 + };
 
-@settimeout_replace@
+// simple cases first: One parameter, presumably the timeout
+// Convert it to integer, just in case.
+
+@sttr1@
+identifier io_settimeout.settimeout;
+identifier f.wsettimeout;
+identifier time;
+type t;
+@@
+- void settimeout(t time)
++ int wsettimeout(struct watchdog_device *wdd, int time)
+  {
+  ...
++ wdd->timeout = time;
++ return 0;
+  }
+
+@sttr2 depends on !sttr1@
+identifier io_settimeout.settimeout;
+identifier f.wsettimeout;
+type t1, t2;
+identifier time;
+expression E;
+@@
+- t1 settimeout(t2 time)
++ int wsettimeout(struct watchdog_device *wdd, int time)
+  {
+  ...
+  }
+
+// Everything else just convert
+
+@sttr3 depends on !sttr1 && !sttr2@
 identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
@@ -375,37 +436,19 @@ identifier f.wsettimeout;
 + int wsettimeout(struct watchdog_device *wdd, int timeout)
   {
   ...
-  wdd->timeout = timeout;
++ wdd->timeout = timeout;
 + return 0;
   }
 
-@settimeout_replace2 depends on !settimeout_replace@
+@sttr4 depends on !sttr1 && !sttr2 && !sttr3@
 identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
-expression E;
 @@
 - settimeout(...)
 + wsettimeout(struct watchdog_device *wdd, int timeout)
   {
   ...
   }
-
-@settimeout_create depends on !settimeout_replace && !settimeout_replace2 && have_settimeout@
-identifier fops.ioctl;
-identifier f.wsettimeout;
-@@
-  ioctl(...) { ...}
-+ static int wsettimeout(struct watchdog_device *wdd, int timeout)
-+ {
-+ /* FIXME driver supports setting the timeout but no function identified */
-+ wdd->timeout = timeout;
-+ }
-
-@depends on io@
-identifier fops.ioctl;
-@@
-
-- ioctl(...) { ... }
 
 @replace_fops@
 identifier miscdev.fo;
@@ -417,7 +460,7 @@ identifier f.wops;
 +
 + };
 
-@replace_add_settimeout depends on have_settimeout@
+@replace_add_settimeout depends on sttr1 || sttr2 || sttr3 || sttr4@
 identifier f.wops;
 identifier f.wsettimeout;
 @@
@@ -509,11 +552,19 @@ identifier f.wdev;
 
 (
 - misc_register(&m);
-+ watchdog_device_register(&wdd);
++ watchdog_register_device(&wdd);
 |
 - ret = misc_register(&m);
 + ret = watchdog_device_register(&wdev);
 )
+
+@@
+identifier miscdev.m;
+identifier f.wdev;
+@@
+
+- misc_deregister(&m);
++ watchdog_unregister_device(&wdd);
 
 @script:python depends on miscdev@
 m << miscdev.m;
@@ -551,11 +602,17 @@ pos << io_stop.p;
 
 print >> f, "stopfunc: %s @ %s:%s" % (stopfunc, pos[0].file, pos[0].line)
 
-@script:python depends on have_settimeout@
-pos << have_settimeout.p;
+@script:python depends on have_stt@
+pos << have_stt.p;
 @@
 
 print >> f, "have_settimeout: case @ %s:%s" % (pos[0].file, pos[0].line)
+
+@script:python depends on have_stt_ping@
+pos << have_stt_ping.p;
+@@
+
+print >> f, "have_settimeout_ping: case @ %s:%s" % (pos[0].file, pos[0].line)
 
 @script:python depends on io_settimeout@
 settimeout << io_settimeout.settimeout;
@@ -584,3 +641,24 @@ fopen << fopso.fopen;
 @@
 
 print >> f, "fopso: openfunc: %s @ %s:%s" % (fopen, pos[0].file, pos[0].line)
+
+@script:python depends on info_opts@
+pos << info_opts.p;
+o << info_opts.o;
+@@
+
+print >> f, "info_opts: opts='%s' @ %s:%s" % (o, pos[0].file, pos[0].line)
+
+@script:python depends on info_fw@
+pos << info_fw.p;
+fw << info_fw.fw;
+@@
+
+print >> f, "info_fw: fw='%s' @ %s:%s" % (fw, pos[0].file, pos[0].line)
+
+@script:python depends on info_id@
+pos << info_id.p;
+id << info_id.id;
+@@
+
+print >> f, "info_id: id='%s' @ %s:%s" % (id, pos[0].file, pos[0].line)
