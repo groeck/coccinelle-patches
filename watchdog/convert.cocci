@@ -25,6 +25,10 @@ struct miscdevice m@p = {
 @@
 - #include <linux/uaccess.h>
 
+@depends on miscdev@
+@@
+- MODULE_ALIAS_MISCDEV(...);
+
 @notifier depends on miscdev@
 identifier nb, nf;
 position p;
@@ -71,7 +75,6 @@ struct file_operations fo = {
 identifier fops.ioctl;
 identifier var;
 identifier pingfunc != {spin_lock, spin_unlock, writel_relaxed, readl_relaxed};
-expression E;
 position p;
 @@
 
