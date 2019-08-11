@@ -67,32 +67,23 @@ struct file_operations fo = {
    .write = fwrite,
 };
 
-@io@
+@io depends on miscdev@
 identifier fops.ioctl;
 identifier var;
-identifier pingfunc != {spin_lock, spin_unlock};
+identifier pingfunc != {spin_lock, spin_unlock, writel_relaxed, readl_relaxed};
 expression E;
 position p;
 @@
 
-ioctl(...)
-{
-  <+...
+ioctl(...) {
+<+...
   switch (var) {
   case WDIOC_KEEPALIVE:
-(
-  pingfunc@p(...);
-  ...
-  break;
-|
-  return pingfunc@p(...);
-|
-  pingfunc@p(...);
-  ...
-  return E;
-)
-  }
+  <+...
+    pingfunc@p(...)
   ...+>
+  }
+...+>
 }
 
 @io_start@
@@ -221,29 +212,21 @@ expression E;
   }
 ...+>
 
-@checkping@
+@haveping@
+identifier io.pingfunc;
+position p;
+@@
+pingfunc@p(...) { ... }
+
+@checkping depends on haveping@
 identifier fopsw.fwrite;
 identifier io.pingfunc;
 position ppos;
-expression E;
 @@
 fwrite(...) {
-...
-(
-pingfunc@ppos(...);
-|
-  if (E) {
-    ...
-    pingfunc@ppos(...);
-    ...
-  }
-|
-  if (E) {
-    ...
-    pingfunc@ppos(...);
-  }
-)
-...
+<+...
+  pingfunc@ppos(...)
+...+>
 }
 
 @checkstart@
@@ -463,9 +446,7 @@ identifier f.wops;
 @@
 
 - struct file_operations fo = { ... };
-+ struct watchdog_ops wops = {
-+
-+ };
++ struct watchdog_ops wops = { };
 
 @replace_add_settimeout depends on sttr1 || sttr2 || sttr3 || sttr4@
 identifier f.wops;
@@ -476,7 +457,7 @@ identifier f.wsettimeout;
   };
 
 @replace_add_ping@
-identifier io.pingfunc;
+identifier io.pingfunc != io_start.startfunc;
 identifier f.wops;
 @@
   struct watchdog_ops wops = {
