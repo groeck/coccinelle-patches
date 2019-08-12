@@ -99,6 +99,17 @@ ioctl(...) {
 ...+>
 }
 
+@fping depends on !io_ping && !fops@
+identifier fopsw.fwrite;
+identifier pingfunc != get_user;
+position p;
+@@
+fwrite(...) {
+<+...
+  pingfunc@p(...)
+...+>
+}
+
 @io_start@
 identifier var, val, val2;
 identifier startfunc != {io_ping.pingfunc, spin_lock, spin_unlock};
@@ -142,7 +153,10 @@ position p;
 // Look for it.
 @io_start2 depends on !io_start@
 identifier fopso.fopen;
-identifier startfunc;
+identifier startfunc !=
+	{io_ping.pingfunc, fping.pingfunc, test_and_set_bit, clear_bit, set_bit,
+	stream_open, __module_get, __raw_writeb, writel_relaxed, readl_relaxed,
+	request_irq, test_and_clear_bit, request_irq };
 position p;
 @@
 
@@ -152,14 +166,9 @@ fopen(...) {
 ...+>
 }
 
-@havestart2local@
-identifier io_start2.startfunc != io_ping.pingfunc;
-@@
-startfunc(...) { ... }
-
 @io_stop@
 identifier var, val;
-identifier stopfunc;
+identifier stopfunc != set_bit;
 statement S;
 expression E;
 position p;
@@ -281,6 +290,11 @@ fwrite(...) {
   pingfunc@ppos(...)
 ...+>
 }
+
+@havestart2local@
+identifier io_start2.startfunc;
+@@
+startfunc(...) { ... }
 
 @checkstart@
 identifier fopso.fopen;
@@ -507,6 +521,14 @@ identifier f.wsettimeout;
 
 @replace_add_ping depends on haveping@
 identifier io_ping.pingfunc;
+identifier f.wops;
+@@
+  struct watchdog_ops wops = {
++	.ping = pingfunc,
+  };
+
+@replace_add_ping2 depends on !replace_add_ping@
+identifier fping.pingfunc;
 identifier f.wops;
 @@
   struct watchdog_ops wops = {
@@ -913,7 +935,7 @@ pos << io_start.p;
 
 print >> f, "iostart %s @ %s:%s" % (func, pos[0].file, pos[0].line)
 
-@script:python depends on havestart2local@
+@script:python@
 func << io_start2.startfunc;
 pos << io_start2.p;
 @@
@@ -944,3 +966,10 @@ prio << priority.prio;
 @@
 
 print >> f, "priority %s in %s" % (prio, nb)
+
+@script:python depends on fping@
+func << fping.pingfunc;
+pos << fping.p;
+@@
+
+print >> f, "fping %s @ %s:%s" % (func, pos[0].file, pos[0].line)
