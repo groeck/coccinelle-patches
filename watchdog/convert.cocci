@@ -14,21 +14,22 @@ struct miscdevice m@p = {
   .fops = &fo,
 };
 
-@depends on miscdev@
+@omiscdev depends on miscdev@
+identifier m != miscdev.m;
+@@
+struct miscdevice m = { ... };
+
+@depends on miscdev && !omiscdev@
 @@
 - #include <linux/miscdevice.h>
 
-@depends on miscdev@
+@depends on miscdev && !omiscdev@
 @@
 - #include <linux/fs.h>
 
-@depends on miscdev@
+@depends on miscdev && !omiscdev@
 @@
 - #include <linux/uaccess.h>
-
-@depends on miscdev@
-@@
-- MODULE_ALIAS_MISCDEV(...);
 
 @notifier depends on miscdev@
 identifier nb, nf;
@@ -436,6 +437,7 @@ type t;
 + int wsettimeout(struct watchdog_device *wdd, unsigned int time)
   {
   ...
++ /* FIXME: set wdd->timeout to actually selected timeout */
 + wdd->timeout = time;
 + return 0;
   }
@@ -447,6 +449,7 @@ type t1, t2;
 identifier time;
 @@
 - t1 settimeout(t2 time)
++ /* FIXME: Check error returns; set wdd->timeout */
 + int wsettimeout(struct watchdog_device *wdd, unsigned int time)
   {
   ...
@@ -459,9 +462,11 @@ identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
 - void settimeout(...)
++ /* FIXME: Check parameters and error returns */
 + int wsettimeout(struct watchdog_device *wdd, unsigned int timeout)
   {
   ...
++ /* FIXME: set wdd->timeout to actually selected timeout */
 + wdd->timeout = timeout;
 + return 0;
   }
@@ -471,6 +476,7 @@ identifier io_settimeout.settimeout;
 identifier f.wsettimeout;
 @@
 - settimeout(...)
++ /* FIXME: Check parameters and error returns; set wdd->timeout */
 + wsettimeout(struct watchdog_device *wdd, unsigned int timeout)
   {
   ...
@@ -604,6 +610,7 @@ identifier io_start.startfunc;
 identifier io_start.startfunc;
 @@
 - int startfunc(...)
++ /* FIXME: Check parameters and error returns */
 + int startfunc(struct watchdog_device *wdd)
   { ... }
 
@@ -677,10 +684,11 @@ identifier notifier.nf;
 
 - nf(...) { ... }
 
-@@
+@wr@
 identifier miscdev.m;
 identifier ret;
 identifier f.wdev;
+position p;
 @@
 
 (
@@ -690,6 +698,18 @@ identifier f.wdev;
 - ret = misc_register(&m);
 + ret = watchdog_register_device(&wdev);
 )
+
+@depends on wr@
+identifier f.wdev;
+identifier wr.ret;
+@@
+
+  ret = watchdog_register_device(&wdev);
+  if (\(ret\|ret < 0\|ret != 0\)) {
+    <...
+-   \(pr_err\|dev_err\)(...);
+    ...>
+  }
 
 @@
 identifier miscdev.m;
