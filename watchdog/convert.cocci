@@ -10,6 +10,7 @@ identifier m, fo;
 position p;
 @@
 struct miscdevice m@p = {
+  .minor = WATCHDOG_MINOR,
   .fops = &fo,
 };
 
