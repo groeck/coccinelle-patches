@@ -496,7 +496,7 @@ identifier f.wops;
 +	.stop = stopfunc,
   };
 
-@fops_add_start@
+@fops_add_start depends on checkstart@
 identifier io_start.startfunc;
 identifier f.wops;
 @@
