@@ -261,15 +261,7 @@ expression E;
 @@
 fopen(...) {
 <+...
-(
-startfunc@pos(...);
-|
-  if (E) {
-    <+...
-    startfunc@pos(...);
-    ...+>
-  }
-)
+  startfunc@pos(...)
 ...+>
 }
 
