@@ -165,6 +165,25 @@ position p;
   }
 ...+>
 
+// if there is no stop function, maybe there is a local
+// function called from the release function. Try it.
+@io_stop2 depends on !io_stop@
+identifier fopsc.fclose;
+identifier stopfunc;
+position p;
+@@
+
+fclose(...) {
+<+...
+  stopfunc@p(...)
+...+>
+}
+
+@havestoplocal@
+identifier io_stop2.stopfunc != io_ping.pingfunc;
+@@
+stopfunc(...) { ... }
+
 @have_stt@
 identifier var;
 position p;
@@ -469,8 +488,16 @@ identifier f.wops;
 +	.ping = pingfunc,
   };
 
-@fops_add_stop@
+@fops_add_stop depends on io_stop@
 identifier io_stop.stopfunc;
+identifier f.wops;
+@@
+  struct watchdog_ops wops = {
++	.stop = stopfunc,
+  };
+
+@fops_add_stop2 depends on !fops_add_stop && havestoplocal@
+identifier io_stop2.stopfunc;
 identifier f.wops;
 @@
   struct watchdog_ops wops = {
@@ -549,8 +576,18 @@ identifier io_start.startfunc;
 + int startfunc(struct watchdog_device *wdd)
   { ... }
 
-@depends on io_stop@
+@sr depends on io_stop@
 identifier io_stop.stopfunc;
+@@
+- void stopfunc(...)
++ int stopfunc(struct watchdog_device *wdd)
+  {
+  ...
++ return 0;
+  }
+
+@depends on !sr && havestoplocal@
+identifier io_stop2.stopfunc;
 @@
 - void stopfunc(...)
 + int stopfunc(struct watchdog_device *wdd)
@@ -730,3 +767,10 @@ pos << fops_add_start2.p;
 @@
 
 print >> f, "fops_add_start2 %s:%s" % (pos[0].file, pos[0].line)
+
+@script:python depends on havestoplocal@
+func << io_stop2.stopfunc;
+pos << io_stop2.p;
+@@
+
+print >> f, "iostop2 %s @ %s:%s" % (func, pos[0].file, pos[0].line)
