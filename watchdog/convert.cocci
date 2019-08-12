@@ -39,6 +39,14 @@ struct notifier_block nb@p = {
   .notifier_call = nf,
 };
 
+@priority depends on notifier@
+identifier notifier.nb;
+constant prio;
+@@
+struct notifier_block nb = {
+  .priority = prio,
+};
+
 @fops@
 identifier miscdev.fo;
 identifier ioctl;
@@ -645,6 +653,7 @@ identifier io_stop2.stopfunc;
 + return 0;
   }
 
+// Replace reboot handler
 @reboot@
 identifier notifier.nb;
 identifier ret;
@@ -663,37 +672,94 @@ identifier notifier.nb;
 - unregister_reboot_notifier(&nb);
 
 @depends on reboot@
-@@
-
-- #include <linux/reboot.h>
-
-@depends on reboot@
-@@
-
-- #include <linux/notifier.h>
-
-@depends on reboot@
 identifier notifier.nb;
 @@
 
 - struct notifier_block nb = { ... };
 
-@depends on reboot@
+// Replace restart handler with callback
+@restart@
+identifier notifier.nb;
+@@
+
+<+...
+  register_restart_handler(&nb)
+...+>
+
+@depends on restart@
+identifier notifier.nb;
+identifier ret;
+@@
+
+(
+- unregister_restart_handler(&nb);
+|
+- ret = unregister_restart_handler(&nb);
+- if (ret) { ... }
+)
+
+@depends on restart || reboot@
+@@
+
+- #include <linux/reboot.h>
+
+@depends on restart || reboot@
+@@
+
+- #include <linux/notifier.h>
+
+@depends on restart@
+identifier notifier.nb;
+@@
+
+- struct notifier_block nb = { ... };
+
+@depends on reboot && !restart@
 identifier notifier.nf;
 @@
 
 - nf(...) { ... }
 
+@rr depends on restart && !reboot@
+identifier notifier.nf;
+identifier v1, v2, v3;
+type t1, t2, t3;
+@@
+
+- nf(t1 v1, t2 v2, t3 v3)
++ nf(struct watchdog_device *wdd, t2 v2, t3 v3)
+  { ... }
+
+@add_restart depends on rr@
+identifier f.wops;
+identifier notifier.nf;
+@@
+  struct watchdog_ops wops = {
++	.restart = nf,
+  };
+
+@depends on add_restart@
+constant priority.prio;
+identifier notifier.nb;
+identifier f.wdev;
+identifier ret;
+@@
+
+- ret = register_restart_handler(&nb);
+- if (ret) { ... }
++ /* FIXME make sure this call is made ahead of watchdog registration */
++ watchdog_set_restart_priority(&wdev, prio);
+
+// Registration
 @wr@
 identifier miscdev.m;
 identifier ret;
 identifier f.wdev;
-position p;
 @@
 
 (
 - misc_register(&m);
-+ watchdog_register_device(&wdd);
++ watchdog_register_device(&wdev);
 |
 - ret = misc_register(&m);
 + ret = watchdog_register_device(&wdev);
@@ -862,3 +928,10 @@ func << io_ping.pingfunc;
 @@
 
 print >> f, "add_start3 %s" % func
+
+@script:python depends on priority@
+nb << notifier.nb;
+prio << priority.prio;
+@@
+
+print >> f, "priority %s in %s" % (prio, nb)
