@@ -674,7 +674,7 @@ type t;
 + int stopfunc(struct watchdog_device *wdd)
   { ... }
 
-@depends on !sr && !sr2 && havestoplocal@
+@sr2a depends on !sr && !sr2 && havestoplocal@
 identifier io_stop2.stopfunc;
 @@
 - void stopfunc(...)
@@ -683,6 +683,14 @@ identifier io_stop2.stopfunc;
   ...
 + return 0;
   }
+
+@depends on !sr && !sr2 && !sr2a && havestoplocal@
+identifier io_stop2.stopfunc;
+type t;
+@@
+- t stopfunc(...)
++ int stopfunc(struct watchdog_device *wdd)
+  { ... }
 
 // Replace reboot handler
 @reboot@
