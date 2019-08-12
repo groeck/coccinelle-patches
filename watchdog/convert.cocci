@@ -158,7 +158,7 @@ identifier io_start2.startfunc != io_ping.pingfunc;
 startfunc(...) { ... }
 
 @io_stop@
-identifier var, val, val2;
+identifier var, val;
 identifier stopfunc;
 statement S;
 expression E;
@@ -178,12 +178,11 @@ position p;
 	}
 	...+>
 |
-	switch (val2) {
+	switch (val) {
 	case WDIOS_DISABLECARD:
 		<+...
 		stopfunc@p(...)
 		...+>
-		break;
 	}
 )
 ?	S
@@ -530,7 +529,7 @@ identifier f.wops;
 +	.stop = stopfunc,
   };
 
-@fops_add_start depends on checkstart@
+@fops_add_start@
 identifier io_start.startfunc;
 identifier f.wops;
 @@
@@ -552,7 +551,7 @@ identifier f.wops;
 // Second alternate start function: If we did not add a start function,
 // but a ping function was found, use it as start function.
 // The ping function will then be unnecessary and can be removed.
-@fops_add_start3 depends on !fops_add_start && !fops_add_start2@
+@fops_add_start3 depends on !fops_add_start && !io_start2 && !havestart2local@
 identifier io_ping.pingfunc;
 identifier f.wops;
 @@
@@ -643,7 +642,15 @@ identifier io_stop.stopfunc;
 + return 0;
   }
 
-@depends on !sr && havestoplocal@
+@sr2 depends on io_stop && !sr@
+identifier io_stop.stopfunc;
+type t;
+@@
+- t stopfunc(...)
++ int stopfunc(struct watchdog_device *wdd)
+  { ... }
+
+@depends on !sr && !sr2 && havestoplocal@
 identifier io_stop2.stopfunc;
 @@
 - void stopfunc(...)
