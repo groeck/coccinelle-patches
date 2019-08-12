@@ -551,6 +551,8 @@ identifier f.wops;
 // Second alternate start function: If we did not add a start function,
 // but a ping function was found, use it as start function.
 // The ping function will then be unnecessary and can be removed.
+// This is currently unnecessary because all drivers meet above requirements,
+// but keep it around just in case.
 @fops_add_start3 depends on !fops_add_start && !io_start2 && !havestart2local@
 identifier io_ping.pingfunc;
 identifier f.wops;
