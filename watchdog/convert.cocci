@@ -127,6 +127,26 @@ position p;
   }
 ...+>
 
+// If we did not find a start function in the ioctl,
+// maybe there is a usable one in the open function.
+// Look for it.
+@io_start2 depends on !io_start@
+identifier fopso.fopen;
+identifier startfunc;
+position p;
+@@
+
+fopen(...) {
+<+...
+  startfunc@p(...)
+...+>
+}
+
+@havestart2local@
+identifier io_start2.startfunc != io_ping.pingfunc;
+@@
+startfunc(...) { ... }
+
 @io_stop@
 identifier var, val, val2;
 identifier stopfunc;
@@ -193,7 +213,7 @@ statement S;
 <+...
   switch (var) {
   case WDIOC_SETTIMEOUT@p:
-  	S
+	S
   }
 ...+>
 
@@ -257,7 +277,6 @@ fwrite(...) {
 identifier fopso.fopen;
 identifier io_start.startfunc;
 position pos;
-expression E;
 @@
 fopen(...) {
 <+...
@@ -339,16 +358,16 @@ wsettimeout;
 
 wops :=
    make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
-   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_ops"));
+		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_ops"));
 wdev :=
    make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
-   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_dev"));
+		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_dev"));
 winfo :=
    make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
-   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_info"));
+		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_info"));
 wsettimeout :=
    make_ident (Str.replace_first (Str.regexp "wdt_wdt") "wdt"
-   		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_set_timeout"))
+		(List.hd(Str.split (Str.regexp "_") fo) ^ "_wdt_set_timeout"))
 
 @info@
 identifier i;
@@ -473,7 +492,7 @@ identifier f.wsettimeout;
   };
 
 @replace_add_ping@
-identifier io_ping.pingfunc != io_start.startfunc;
+identifier io_ping.pingfunc;
 identifier f.wops;
 @@
   struct watchdog_ops wops = {
@@ -505,17 +524,36 @@ identifier f.wops;
 +	.start = startfunc,
   };
 
-// Alternate start function: If we added neither a start nor
-// a ping function, but a ping function was found, use it
-// as start function.
-@fops_add_start2 depends on !fops_add_start && !replace_add_ping@
-identifier io_ping.pingfunc;
+// first alternate start, identified from open function
+@fops_add_start2 depends on havestart2local && !fops_add_start@
+identifier io_start2.startfunc;
 identifier f.wops;
-position p;
 @@
 
-  struct watchdog_ops wops@p = {
+  struct watchdog_ops wops = {
++	.start = startfunc,
+  };
+
+// Second alternate start function: If we did not add a start function,
+// but a ping function was found, use it as start function.
+// The ping function will then be unnecessary and can be removed.
+@fops_add_start3 depends on !fops_add_start && !fops_add_start2@
+identifier io_ping.pingfunc;
+identifier f.wops;
+@@
+
+  struct watchdog_ops wops = {
 +	.start = pingfunc,
+  };
+
+// Now remove ping function if it matches the start function
+@@
+identifier f.wops;
+identifier pingfunc;
+@@
+  struct watchdog_ops wops = {
+	.start = pingfunc,
+-	.ping = pingfunc,
   };
 
 @@
@@ -561,12 +599,23 @@ identifier io_start.startfunc;
 
 // Maybe the start function type is already declared as int.
 // If so, use it.
-@depends on !s1@
+@s2 depends on !s1@
 identifier io_start.startfunc;
 @@
 - int startfunc(...)
 + int startfunc(struct watchdog_device *wdd)
   { ... }
+
+// or maybe we have an alternate start function.
+@depends on !s1 && !s2@
+identifier io_start2.startfunc;
+@@
+- void startfunc(...)
++ int startfunc(struct watchdog_device *wdd)
+  {
+  ...
++ return 0;
+  }
 
 @sr depends on io_stop@
 identifier io_stop.stopfunc;
@@ -754,15 +803,41 @@ nf << notifier.nf;
 
 print >> f, "notifier: '%s' @ %s:%s calling %s" % (nb, pos[0].file, pos[0].line, nf)
 
-@script:python depends on fops_add_start2@
-pos << fops_add_start2.p;
-@@
-
-print >> f, "fops_add_start2 %s:%s" % (pos[0].file, pos[0].line)
-
 @script:python depends on havestoplocal@
 func << io_stop2.stopfunc;
 pos << io_stop2.p;
 @@
 
 print >> f, "iostop2 %s @ %s:%s" % (func, pos[0].file, pos[0].line)
+
+@script:python@
+func << io_start.startfunc;
+pos << io_start.p;
+@@
+
+print >> f, "iostart %s @ %s:%s" % (func, pos[0].file, pos[0].line)
+
+@script:python depends on havestart2local@
+func << io_start2.startfunc;
+pos << io_start2.p;
+@@
+
+print >> f, "iostart2 %s @ %s:%s" % (func, pos[0].file, pos[0].line)
+
+@script:python depends on fops_add_start@
+func << io_start.startfunc;
+@@
+
+print >> f, "add_start %s" % func
+
+@script:python depends on fops_add_start2@
+func << io_start2.startfunc;
+@@
+
+print >> f, "add_start2 %s" % func
+
+@script:python depends on fops_add_start3@
+func << io_ping.pingfunc;
+@@
+
+print >> f, "add_start3 %s" % func
