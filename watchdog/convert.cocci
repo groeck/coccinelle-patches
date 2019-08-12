@@ -84,7 +84,7 @@ struct file_operations fo = {
 @io_ping depends on miscdev@
 identifier fops.ioctl;
 identifier var;
-identifier pingfunc != {spin_lock, spin_unlock, writel_relaxed, readl_relaxed};
+identifier pingfunc != {spin_lock, spin_unlock, writel_relaxed, readl_relaxed, pr_info};
 position p;
 @@
 
@@ -505,7 +505,7 @@ identifier f.wsettimeout;
 +	.set_timeout = wsettimeout,
   };
 
-@replace_add_ping@
+@replace_add_ping depends on haveping@
 identifier io_ping.pingfunc;
 identifier f.wops;
 @@
@@ -553,7 +553,7 @@ identifier f.wops;
 // The ping function will then be unnecessary and can be removed.
 // This is currently unnecessary because all drivers meet above requirements,
 // but keep it around just in case.
-@fops_add_start3 depends on !fops_add_start && !io_start2 && !havestart2local@
+@fops_add_start3 depends on !fops_add_start && !io_start2 && !havestart2local && haveping@
 identifier io_ping.pingfunc;
 identifier f.wops;
 @@
