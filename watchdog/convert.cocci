@@ -71,7 +71,7 @@ struct file_operations fo = {
    .write = fwrite,
 };
 
-@io depends on miscdev@
+@io_ping depends on miscdev@
 identifier fops.ioctl;
 identifier var;
 identifier pingfunc != {spin_lock, spin_unlock, writel_relaxed, readl_relaxed};
@@ -91,7 +91,7 @@ ioctl(...) {
 
 @io_start@
 identifier var, val, val2;
-identifier startfunc != {spin_lock, spin_unlock};
+identifier startfunc != {io_ping.pingfunc, spin_lock, spin_unlock};
 statement S;
 expression E;
 position p;
@@ -105,7 +105,7 @@ position p;
 	<+...
 	if (val & WDIOS_ENABLECARD) {
 		<+...
-		startfunc@p(...);
+		startfunc@p(...)
 		...+>
 	}
 	...+>
@@ -113,7 +113,7 @@ position p;
 	switch (val2) {
 	case WDIOS_ENABLECARD:
 		<+...
-		startfunc@p(...);
+		startfunc@p(...)
 		...+>
 		break;
 	}
@@ -143,14 +143,16 @@ position p;
 	<+...
 	if (val & WDIOS_DISABLECARD) {
 		<+...
-		stopfunc@p(...);
+		stopfunc@p(...)
 		...+>
 	}
 	...+>
 |
 	switch (val2) {
 	case WDIOS_DISABLECARD:
-		stopfunc@p(...);
+		<+...
+		stopfunc@p(...)
+		...+>
 		break;
 	}
 )
@@ -178,7 +180,7 @@ statement S;
 
 @have_stt_ping@
 identifier var;
-identifier io.pingfunc;
+identifier io_ping.pingfunc;
 position p;
 expression E;
 @@
@@ -196,7 +198,7 @@ expression E;
 
 @io_settimeout@
 identifier var;
-identifier settimeout != {io.pingfunc,io_start.startfunc,io_stop.stopfunc,
+identifier settimeout != {io_ping.pingfunc,io_start.startfunc,io_stop.stopfunc,
 	 get_user,put_user,copy_from_user,copy_to_user,
 	 spin_lock,spin_unlock,
 	 superio_enter,superio_select,superio_exit};
@@ -216,14 +218,14 @@ expression E;
 ...+>
 
 @haveping@
-identifier io.pingfunc;
+identifier io_ping.pingfunc;
 position p;
 @@
 pingfunc@p(...) { ... }
 
 @checkping depends on haveping@
 identifier fopsw.fwrite;
-identifier io.pingfunc;
+identifier io_ping.pingfunc;
 position ppos;
 @@
 fwrite(...) {
@@ -460,7 +462,7 @@ identifier f.wsettimeout;
   };
 
 @replace_add_ping@
-identifier io.pingfunc != io_start.startfunc;
+identifier io_ping.pingfunc != io_start.startfunc;
 identifier f.wops;
 @@
   struct watchdog_ops wops = {
@@ -484,6 +486,19 @@ identifier f.wops;
 +	.start = startfunc,
   };
 
+// Alternate start function: If we added neither a start nor
+// a ping function, but a ping function was found, use it
+// as start function.
+@fops_add_start2 depends on !fops_add_start && !replace_add_ping@
+identifier io_ping.pingfunc;
+identifier f.wops;
+position p;
+@@
+
+  struct watchdog_ops wops@p = {
++	.start = pingfunc,
+  };
+
 @@
 identifier miscdev.m;
 identifier f.wops;
@@ -505,8 +520,8 @@ identifier fopsc.fclose;
 
 - fclose(...) { ... }
 
-@depends on io && checkping@
-identifier io.pingfunc;
+@depends on checkping@
+identifier io_ping.pingfunc;
 @@
 - void pingfunc(...)
 + int pingfunc(struct watchdog_device *wdd)
@@ -515,7 +530,7 @@ identifier io.pingfunc;
 + return 0;
   }
 
-@depends on io_start@
+@s1 depends on io_start@
 identifier io_start.startfunc;
 @@
 - void startfunc(...)
@@ -524,6 +539,15 @@ identifier io_start.startfunc;
   ...
 + return 0;
   }
+
+// Maybe the start function type is already declared as int.
+// If so, use it.
+@depends on !s1@
+identifier io_start.startfunc;
+@@
+- int startfunc(...)
++ int startfunc(struct watchdog_device *wdd)
+  { ... }
 
 @depends on io_stop@
 identifier io_stop.stopfunc;
@@ -611,9 +635,9 @@ p << fops.p;
 print >> f, "ioctl: %s @ %s:%s" % (ioctl, p[0].file, p[0].line)
 
 
-@script:python depends on io@
-pingfunc << io.pingfunc;
-pos << io.p;
+@script:python depends on io_ping@
+pingfunc << io_ping.pingfunc;
+pos << io_ping.p;
 @@
 
 print >> f, "pingfunc: %s @ %s:%s" % (pingfunc, pos[0].file, pos[0].line)
@@ -653,7 +677,7 @@ print >> f, "settimeout: %s @ %s:%s" % (settimeout, pos[0].file, pos[0].line)
 
 @script:python depends on checkping@
 pos << checkping.ppos;
-pingfunc << io.pingfunc;
+pingfunc << io_ping.pingfunc;
 @@
 
 print >> f, "checkping: pingfunc: %s @ %s:%s" % (pingfunc, pos[0].file, pos[0].line)
@@ -700,3 +724,9 @@ nf << notifier.nf;
 @@
 
 print >> f, "notifier: '%s' @ %s:%s calling %s" % (nb, pos[0].file, pos[0].line, nf)
+
+@script:python depends on fops_add_start2@
+pos << fops_add_start2.p;
+@@
+
+print >> f, "fops_add_start2 %s:%s" % (pos[0].file, pos[0].line)
