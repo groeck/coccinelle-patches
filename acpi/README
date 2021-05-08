@@ -1,0 +1,19 @@
+Run in Linux source directory with:
+
+make coccicheck COCCI=../coccinelle-patches/acpi/acpi.cocci \
+	SPFLAGS="--linux-spacing" MODE=patch M=<dir>
+
+to get a set of patches, or
+
+make coccicheck COCCI=../coccinelle-patches/acpi/acpi.cocci \
+	SPFLAGS="--linux-spacing" MODE=report M=<dir>
+
+to get a report.
+
+You'll likely need to update csv_source_dir in acpi.cocci.
+
+Known problems:
+- __maybe_unused is added even if the data structure is protected
+  with #ifdef CONFIG_ACPI.
+- ACPI tables are either removed entirely or not at all.
+  Code to remove individual bad ACPI match table entries is MIA.
