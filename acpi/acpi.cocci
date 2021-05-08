@@ -186,13 +186,13 @@ for e in elements:
         matched = False
 	for acpi in acpi_ids:
 	    if id.startswith(acpi[1]):
-	        print "  %s: match (ACPI ID) against %s (%s)" % (id, acpi[1], acpi[0])
+	        print "  %s: ACPI ID match against %s (%s)" % (id, acpi[1], acpi[0])
 		matched = True
 	        break
 	if not matched:
             for pnp in pnp_ids:
 	        if id.startswith(pnp[1]):
-	            print "  %s: match (prefix) against %s (%s)" % (id, pnp[1], pnp[0])
+	            print "  %s: PNP ID match against %s (%s)" % (id, pnp[1], pnp[0])
 		    matched = True
 	            break
 	if not matched:
