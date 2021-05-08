@@ -81,12 +81,12 @@ for e in elements:
     if e1:
         id = e1.group(1)
 	for acpi in acpi_ids:
-	    if id.startswith(acpi[1]):
+	    if id.startswith(acpi[1]) and len(id) == 8:
 		matched = True
 	        break
 	if not matched:
             for pnp in pnp_ids:
-	        if id.startswith(pnp[1]):
+	        if id.startswith(pnp[1]) and len(id) == 7:
 		    matched = True
 	            break
     if matched:
