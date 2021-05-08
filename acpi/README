@@ -10,10 +10,19 @@ make coccicheck COCCI=../coccinelle-patches/acpi/acpi.cocci \
 
 to get a report.
 
-You'll likely need to update csv_source_dir in acpi.cocci.
+You'll need to update csv_source_dir in acpi.cocci to point to the
+.csv file directory.
 
 Known problems:
 - __maybe_unused is added even if the data structure is protected
   with #ifdef CONFIG_ACPI.
+- If code is removed entirely, #ifdef around it is left in place,
+  which may result in empty #ifdef/#endif code.
+- When an ACPI table is removed, no attempt is made to check
+  if the table is referenced outside the .acpi_match_table
+  assignment. This likely results in excessive removals.
+  [ It is an open question if the code accessing the removed table
+    should be removed as well, or if the table should be left alone.
+  ]
 - ACPI tables are either removed entirely or not at all.
   Code to remove individual bad ACPI match table entries is MIA.
